@@ -1,7 +1,12 @@
 package SymbolTable;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class BinaryTree{
     private Node rootNode;
+    private int count = 0;
 
     private void insert(Node parentNode, Node newNode){
         // If the parentNode is null, this is the first node in the tree
@@ -67,7 +72,20 @@ public class BinaryTree{
         }
 
         // TODO add it to another Data structure, that can be accessed via binaryTree.getAll()
-        System.out.println(node);
+        {
+            System.out.println(node);
+            count++;
+            if((count % 20)==0){
+                System.out.println("\n Press Enter key to see the next 20 symbols.");
+                try{
+                    BufferedReader tempHalt = new BufferedReader(new InputStreamReader(System.in));
+                    tempHalt.readLine();
+                } catch (IOException e){
+                    System.out.println(e);
+                }
+            }
+        }
+
 
         if(node.rightNode != null){
             view(node.rightNode);
