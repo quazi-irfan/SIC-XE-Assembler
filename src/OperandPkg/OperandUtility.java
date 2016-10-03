@@ -1,6 +1,5 @@
 package OperandPkg;
 
-import SymbolPkg.Node;
 import SymbolPkg.SymbolTable;
 
 import java.io.BufferedReader;
@@ -42,7 +41,7 @@ public class OperandUtility{
             }
 
             if(expression.length() >= 3 && expression.substring(expression.length()-2, expression.length()).equals(",X")){
-                if(operand.nbit & operand.ibit == false){
+                if(operand.nbit & !operand.ibit){
                     System.out.println("@ or # can't be mixed with ,X");
                     return;
                 }
@@ -61,18 +60,16 @@ public class OperandUtility{
 
     private static void validateExp(String expression, Operand operand, SymbolTable symbolTable){
         if(expression.indexOf('+') >= 0 || expression.indexOf('-') >= 0){
-            int token1Value =0, token2Value=0;
-            boolean token1rflag=false, token2rflag=false;
 
             StringTokenizer tokenizer = new StringTokenizer(expression, "+-");
 
             String temp = tokenizer.nextToken();
-            token1Value = Token.getTokenValue(temp, symbolTable);
-            token1rflag = Token.getTokenRflag(temp, symbolTable);
+            int token1Value = Token.getTokenValue(temp, symbolTable);
+            boolean token1rflag = Token.getTokenRflag(temp, symbolTable);
 
             temp = tokenizer.nextToken();
-            token2Value = Token.getTokenValue(temp, symbolTable);
-            token2rflag = Token.getTokenRflag(temp, symbolTable);
+            int token2Value = Token.getTokenValue(temp, symbolTable);
+            boolean token2rflag = Token.getTokenRflag(temp, symbolTable);
 
             // set operands value, and flag
             if(expression.indexOf('+') >= 0)
@@ -101,22 +98,22 @@ public class OperandUtility{
 
     private static String evaluateRelocability(boolean token1rflag, boolean token2rflag, String expression){
         if(expression.indexOf('+') >= 0){
-            if(token1rflag == false & token2rflag == false)
+            if(!token1rflag & !token2rflag)
                 return "false";
-            if(token1rflag == false & token2rflag == true)
+            if(!token1rflag & token2rflag)
                 return "true";
-            if(token1rflag == true & token2rflag == false)
+            if(token1rflag & !token2rflag)
                 return "true";
-            if(token1rflag == true & token2rflag == true)
+            if(token1rflag & token2rflag)
                 return "error";
         } else if(expression.indexOf('-') >= 0){
-            if(token1rflag == false & token2rflag == false)
+            if(!token1rflag& !token2rflag)
                 return "false";
-            if(token1rflag == false & token2rflag == true)
+            if(!token1rflag & !token2rflag)
                 return "error";
-            if(token1rflag == true & token2rflag == false)
+            if(token1rflag & !token2rflag)
                 return "true";
-            if(token1rflag == true & token2rflag == true)
+            if(token1rflag & token2rflag)
                 return "false";
         }
 
