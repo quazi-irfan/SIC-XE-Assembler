@@ -1,10 +1,12 @@
-import OperandPkg.LinkedList;
+import OperandPkg.Literal;
 import OperandPkg.Operand;
 import OperandPkg.OperandUtility;
 import SymbolPkg.*;
 
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 
 //  NAME  :  Quazi Irfan
@@ -16,7 +18,7 @@ import java.io.*;
 
 
 /**
- * Main class of Assignment 1. This class is within SumbolTable package.
+ * Main class of Assignment 1. This class is within SymbolTable package.
  *
  * Currently everything is contained within static Main method.
  * Three stages are labeled as Stage X. This code mostly read the file and
@@ -26,10 +28,10 @@ import java.io.*;
 public class Main {
     public static void main(String[] args) throws IOException{
         SymbolTable symbolTable = new SymbolTable();
-        LinkedList<Operand> literalLnkdLst = new LinkedList<>();
+        LinkedList<Literal> literalLnkdLst = new LinkedList<>();
 
         if(args.length < 2){
-            System.out.println("Please use command \"javac Main labels.txt operands.txt");
+            System.out.println("Please use command \"javac Main labels.txt operands.txt\"");
             return;
         }
 
@@ -40,6 +42,7 @@ public class Main {
         OperandUtility.evaluateOperand(symbolTable, literalLnkdLst, operandFile);
 
         // print the literal linked list
+//        System.out.println(literalLnkdLst);
     }
 
 }
