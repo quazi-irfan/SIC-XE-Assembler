@@ -209,10 +209,10 @@ public class OperandUtility{
             }
             boolean token2rflag = Token.getTokenRflag(token2, symbolTable);
 
-             if(isInteger(token1) & isInteger(token2) & original.contains("@"))
+             if(Utility.isInteger(token1) & Utility.isInteger(token2) & original.contains("@"))
                  return original + " (Error : @Literal or #Literal is not illegal)";
 
-             if(isInteger(token1) & isInteger(token2))
+             if(Utility.isInteger(token1) & Utility.isInteger(token2))
                  operand.nbit = false;
 
             // Set the value and flag of Operand
@@ -237,12 +237,12 @@ public class OperandUtility{
             String token = expression;
 
             // Check for @literal
-            if(original.contains("@") & isInteger(token)){
+            if(original.contains("@") & Utility.isInteger(token)){
                 return original + " (Error : @Literal or #Literal is not legal)";
             }
 
             // Set the value and flag of Operand
-             if(isInteger(token)) {
+             if(Utility.isInteger(token)) {
                  // for Numeric token
                  operand.value = Integer.parseInt(token);
              } else {
@@ -296,16 +296,5 @@ public class OperandUtility{
         return null;
     }
 
-    public static boolean isInteger(String s) {
-        try {
-            Integer.parseInt(s);
-        } catch(NumberFormatException e) {
-            return false;
-        } catch(NullPointerException e) {
-            return false;
-        }
-        // only got here if we didn't return false
-        return true;
-    }
 }
 

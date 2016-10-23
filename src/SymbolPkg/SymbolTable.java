@@ -1,5 +1,7 @@
 package SymbolPkg;
 
+import Assembler.Utility;
+
 import java.util.StringTokenizer;
 
 /**
@@ -14,10 +16,9 @@ public class SymbolTable {
     BinaryTree binaryTree = new BinaryTree();
 
     /**
-     * Add an entire line from the source file to the symbol table.
+     * Read an entire line, validate every token. Upon successful validation, enter the symbol into the symbol table.
      * This function will use StringTokenizer to parse individual attributes.
-     * Upon successful parsing, a new node is added to the binary tree.
-     * If any error is occurs, this function returns ignoring the remainging line.
+     * If any invalid entry, the function returns without entering the symbol into the symbol table.
      *
      * @param line Feed an entire line from the source file.
      */
@@ -29,10 +30,10 @@ public class SymbolTable {
             String tempToken = tokenizer.nextToken();
 
             // check for valid symbol
-            String tokenStatus = validateSymbol(tempToken);
-            if(tokenStatus.equals("valid")){
+            SymbolStatus symbolStatus = validateSymbol(tempToken);
+            if(symbolStatus == SymbolStatus.Valid){
                 // Check for duplication
-                Node tempNode = binaryTree.search(new Node(tempToken)); // Symbols are automatically truncated to it's first 4 chars
+                Node tempNode = binaryTree.search(new Node(tempToken)); // returns null is Node isn't found
                 if(tempNode != null){
                     // duplicate found, so set the mflag to true
                     tempNode.setMflag(true);
@@ -43,46 +44,37 @@ public class SymbolTable {
                 }
             // invalid symbol
             } else {
-                System.out.println("Invalid Symbol : " + tempToken + " -> " + tokenStatus);
-                break;  // Once an error occured the entire line is discarded
+                System.out.println("Invalid Symbol : " + tempToken + " -> " + symbolStatus.getDetails());
+                break;  // Once an error found the entire line is discarded
             }
-            tempToken = tokenizer.nextToken();
+            tempToken = tokenizer.nextToken(); // Valid symbol is found, now try to get the value of the symbol
 
             // check for valid value
-            if(validValue(tempToken)){
+            if(Utility.isInteger(tempToken)){
                 node.setValue(Integer.parseInt(tempToken));
             } else {
                 System.out.println("Invalid Value : " + tempToken);
                 break;
             }
-            tempToken = tokenizer.nextToken();
+            tempToken = tokenizer.nextToken();  // Valid value of the symbol is found, now try to get the rflag of the symbol
 
             // check for valid rflag
-            tokenStatus = validateRFlag(tempToken);
-            if(tokenStatus.equals("valid")){
-                if(Character.isDigit(tempToken.charAt(0))){
-                    if(tempToken.charAt(0) == '0')
+            RFlagStatus rFlagStatus = validateRFlag(tempToken);
+            if(!(rFlagStatus == RFlagStatus.Invalid)){
+                if(rFlagStatus == RFlagStatus.False)
                         node.setRflag(false);
                     else
                         node.setRflag(true);
                 } else {
-                    tempToken = tempToken.toUpperCase();
-
-                    if (tempToken.equals("F") | tempToken.equals("FALSE"))
-                        node.setRflag(false);
-                    else
-                        node.setRflag(true);
-                }
-
-            } else {
-                System.out.println("Invalid Rflag : " + tempToken);
-                break;
+                    System.out.println("Invalid Rflag : " + tempToken);
+                    break;
             }
 
-            // set the remaining iflag and mflag
+            // set the remaining iflag and mflag to true and false by default
             node.setIflag(true);
             node.setMflag(false);
             binaryTree.insert(node);
+            System.out.println(node);
         }
 
     }
@@ -97,44 +89,27 @@ public class SymbolTable {
      * @param symbol Symbol string to check
      * @return if symbol is valid "valid" string is returned, otherwise "invalid" string is returned.
      */
-    public String validateSymbol(String symbol) {
+    public SymbolStatus validateSymbol(String symbol) {
         // check if symbol lenth exceeds 10 characters
         if(symbol.length() > 10){
-            return "Symbol length must be between 4-10 characters long.";
+            return SymbolStatus.ExceedsLength;
         }
 
         // check if symbol doesn't start with letters
         if(!Character.isAlphabetic(symbol.charAt(0))){
-            return "Symbol must start with letters(A...Z or a...z)";
+            return SymbolStatus.InvalidStartChar;
         }
 
         // check for alphabetic, digits and underscore
         for(int i = 1; i<symbol.length(); i++){
             char c = symbol.charAt(i);
             if(!(Character.isAlphabetic(c) | Character.isDigit(c) | (c == '_'))){
-                return "Symbol can only contain A-Z,a-z, 0-9 and Underscore'_'";
+                return SymbolStatus.InvalidChar;
             }
         }
 
         // otherwise the symbol is valid
-        return "valid";
-    }
-
-    /**
-     * Uses Interger.parseInt to check the validity of the 'value' of the Node.
-     * It accepts +5, but 5+ is rejected.
-     *
-     * @param value String value of the 'value'
-     * @return True if valid 'value', and false otherwise.
-     */
-    private boolean validValue(String value) {
-        try {
-            Integer.parseInt(value);
-        } catch (Exception e){
-            return false;
-        }
-
-        return true;
+        return SymbolStatus.Valid;
     }
 
     /**
@@ -143,23 +118,28 @@ public class SymbolTable {
      * @param rflag String value of rFlag
      * @return returns "valid" if rflag is valid, or "invalid" otherwise.
      */
-    private String validateRFlag(String rflag) {
+    private RFlagStatus validateRFlag(String rflag) {
         if(rflag.length() == 1){
-            char[] c = rflag.toCharArray();
-            if(Character.isDigit(c[0])){
-                if(rflag.equals("0") | rflag.equals("1"))
-                    return "valid";
+            // accept 0 or 1 as rflag
+            if(Character.isDigit(rflag.charAt(0))){
+                if(rflag.equals("0"))
+                    return RFlagStatus.False;
+                if(rflag.equals("1"))
+                    return RFlagStatus.True;
                 else
-                    return "invalid";
+                    return RFlagStatus.Invalid;
             }
         }
 
+        // accept tRue or FaLse as rflag
         rflag = rflag.toUpperCase();
 
-        if(!(rflag.equals("FALSE") | rflag.equals("F") | rflag.equals("TRUE") | rflag.equals("T")))
-            return "invalid";
-
-        return "valid";
+        if(rflag.equals("FALSE") | rflag.equals("F"))
+            return RFlagStatus.False;
+        else if(rflag.equals("TRUE") | rflag.equals("T"))
+            return RFlagStatus.True;
+        else
+            return RFlagStatus.Invalid;
     }
 
     /**

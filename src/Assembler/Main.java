@@ -1,7 +1,6 @@
 package Assembler;
 
 import OperandPkg.Literal;
-import OperandPkg.OperandUtility;
 import SymbolPkg.*;
 
 import java.io.*;
@@ -32,47 +31,48 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalLnkdLst = new LinkedList<>();
 
-        // Set input files
-        String symbolFile, operandFile;
-        if(args.length < 2){
-            System.out.println("Missing command like argument.");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter Symbol File : ");
-            symbolFile = reader.readLine();
-            System.out.print("Enter Expressions File : ");
-            operandFile = reader.readLine();
-        } else {
-            symbolFile = args[0];
-            operandFile = args[1];
-        }
-
-        // Check the existence of both symbol and operand file
-        File f = new File(symbolFile);
-        if(!f.exists()) {
-            System.out.println(symbolFile + " not found. Please rerun the program to try again.");
-            return;
-        }
-
-        f = new File(operandFile);
-        if(!f.exists()) {
-            System.out.println(operandFile + " not found. Please rerun the program to try again.");
-            return;
-        }
+//        // Set input files
+//        String symbolFile, operandFile;
+//        if(args.length < 2){
+//            System.out.println("Missing command like argument.");
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+//            System.out.print("Enter Symbol File : ");
+//            symbolFile = reader.readLine();
+//            System.out.print("Enter Expressions File : ");
+//            operandFile = reader.readLine();
+//        } else {
+//            symbolFile = args[0];
+//            operandFile = args[1];
+//        }
+//
+//        // Check the existence of both symbol and operand file
+//        File f = new File(symbolFile);
+//        if(!f.exists()) {
+//            System.out.println(symbolFile + " not found. Please rerun the program to try again.");
+//            return;
+//        }
+//
+//        f = new File(operandFile);
+//        if(!f.exists()) {
+//            System.out.println(operandFile + " not found. Please rerun the program to try again.");
+//            return;
+//        }
 
         // Populate Symbol Table
-        SymbolUtility.populateSymbolTable(symbolTable, symbolFile);
+        SymbolTableUtility.populateSymbolTable(symbolTable, "A1_labels.txt");
         System.out.println("*** SYMBOL TABLE ***\nSymbol\t Value\t rflag\t iflag\t mflag\t");
         symbolTable.view();
+        SymbolTableUtility.testSymbolTable(symbolTable, "A1_labels_tests.txt");
 
-        // Evaluate and print Expressions
-        System.out.println("\n*** EXPRESSIONS ***\nExpresion\t Value\t Relocatable n i x");
-        OperandUtility.evaluateOperand(symbolTable, literalLnkdLst, operandFile);
-
-        // Print contents of the literal table
-        System.out.println("\n*** LITERAL TABLE ***\nName\t\t Value\t\t Size\t Address");
-        for(Object o : literalLnkdLst){
-            System.out.println(o);
-        }
+//        // Evaluate and print Expressions
+//        System.out.println("\n*** EXPRESSIONS ***\nExpresion\t Value\t Relocatable n i x");
+//        OperandUtility.evaluateOperand(symbolTable, literalLnkdLst, operandFile);
+//
+//        // Print contents of the literal table
+//        System.out.println("\n*** LITERAL TABLE ***\nName\t\t Value\t\t Size\t Address");
+//        for(Object o : literalLnkdLst){
+//            System.out.println(o);
+//        }
     }
 
 
