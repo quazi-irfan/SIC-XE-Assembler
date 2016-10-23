@@ -1,8 +1,6 @@
 package SymbolPkg;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import Assembler.Utility;
 
 /**
  *  BinaryTree class manages the Binary Tree.
@@ -119,15 +117,9 @@ public class BinaryTree{
         {
             System.out.println(node);
             viewCount++;
-            if((viewCount % 20)==0){
-                System.out.println(" * Press Enter key to see the next 20 symbols.");
-                try{
-                    BufferedReader tempHalt = new BufferedReader(new InputStreamReader(System.in));
-                    tempHalt.readLine();
-                } catch (IOException e){
-                    System.out.println(e);
-                }
-            }
+//            if((viewCount % 20)==0){
+//                Utility.enterToContinue();
+//            }
         }
 
 

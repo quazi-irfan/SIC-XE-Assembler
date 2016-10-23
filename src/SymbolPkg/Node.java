@@ -56,11 +56,12 @@ public class Node{
      */
     @Override
     public String toString(){
-        return this.key + "\t" +
-                this.value + "\t\t" +
-                ((this.rflag) ? 1 : 0) + "\t\t" +
-                ((this.iflag) ? 1 : 0) + "\t\t" +
-                ((this.mflag) ? 1 : 0);
+        String output = String.format("%1$-8s %2$-9d %3$-7d %4$-7d %5$d",
+                key, value,
+                (this.rflag) ? 1 : 0,
+                (this.iflag) ? 1 : 0,
+                (this.mflag) ? 1 : 0);
+        return output;
     }
 
     /**

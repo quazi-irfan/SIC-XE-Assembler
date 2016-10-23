@@ -65,21 +65,21 @@ public class SymbolTable {
                         node.setRflag(false);
                     else
                         node.setRflag(true);
+                } else {
+                    tempToken = tempToken.toUpperCase();
+
+                    if (tempToken.equals("F") | tempToken.equals("FALSE"))
+                        node.setRflag(false);
+                    else
+                        node.setRflag(true);
                 }
-
-                tempToken = tempToken.toUpperCase();
-
-                if(tempToken.equals("F") | tempToken.equals("FALSE"))
-                    node.setRflag(false);
-                else
-                    node.setRflag(true);
 
             } else {
                 System.out.println("Invalid Rflag : " + tempToken);
                 break;
             }
 
-            // valid Node is crated; now add it to the binaryTree
+            // set the remaining iflag and mflag
             node.setIflag(true);
             node.setMflag(false);
             binaryTree.insert(node);
