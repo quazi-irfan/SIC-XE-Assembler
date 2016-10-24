@@ -9,7 +9,7 @@ package OperandPkg;
  * Other attributes of literal are public.
  */
 public class Literal {
-    public static int staticAddress = 1;
+    public static int currentStaticAddress = 1;
 
     String name, value;
     int length, address;
