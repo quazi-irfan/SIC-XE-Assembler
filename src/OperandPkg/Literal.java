@@ -11,14 +11,15 @@ package OperandPkg;
 public class Literal {
     public static int currentStaticAddress = 1;
 
-    String name, value;
-    int length, address;
+    public String name, value;
+    public int length, address;
 
     /**
      * Helper method that returns formatted attributes of a Literal
      */
     public String toString() {
-        String output = String.format("%1$-12s %2$-16s %3$-7d %4$d", name, value, length, address);
+        String output = String.format("%1$-12s %2$-16s %3$-7d %4$s",
+                name, value.toUpperCase(), length, Integer.toHexString(address).toUpperCase());
 
         return output;
     }

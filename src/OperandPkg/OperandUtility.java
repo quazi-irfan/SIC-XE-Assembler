@@ -5,8 +5,6 @@ import SymbolPkg.SymbolStatus;
 import SymbolPkg.SymbolTable;
 import SymbolPkg.SymbolTableUtility;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
@@ -22,18 +20,15 @@ public class OperandUtility{
      *
      * @param symbolTable Take the symbol table to compare the Exparesions with
      * @param literalLnkdLst Holds the Linked link populated with literals
-     * @param operandFile Source file to read the Expressions from
+     * @param expression operand to be evaluated
      */
-    public static void evaluateOperand(SymbolTable symbolTable, LinkedList<Literal> literalLnkdLst, String operandFile) throws IOException{
-        BufferedReader reader = new BufferedReader(new FileReader(operandFile));
-
-        String expression = reader.readLine();
-        while(expression != null && expression.length() > 0){
+    public static String evaluateOperand(SymbolTable symbolTable, LinkedList<Literal> literalLnkdLst, String expression) throws IOException{
+        if(expression != null && expression.length() > 0){
             // original string hold the unaltered expression
             original = expression;
 
             if(expression.charAt(0) != '=') {
-                // Handle non-Literal
+                // *** Handle non-Literal ***
 
                 // If not literal make everything upper cased.
                 expression = expression.toUpperCase();
@@ -69,9 +64,7 @@ public class OperandUtility{
                 if (expression.length() >= 3 && expression.substring(expression.length() - 2, expression.length()).equals(",X")) {
                     // Check if mixing @ or # with ,X
                     if (original.contains("@") | original.contains("#") ) {
-                        System.out.println(original + " (Error : @ or # can't be mixed with ,X)");
-                        expression = reader.readLine();
-                        continue;
+                        return original + " (Error : @ or # can't be mixed with ,X)";
                     }
 
                     // We have valid expression,X
@@ -79,19 +72,14 @@ public class OperandUtility{
                     expression = expression.substring(0, expression.length() - 2);
                 }
 
-                // evaluate the expression
-                String expressionStatus = validateExp(expression, operand, symbolTable);
+                // evaluate the expression red+3, one-two
+                String expressionStatus = evaluateExpression(expression, operand, symbolTable);
                 if(!expressionStatus.equals("valid")){
-                    // report error if failed to evaluate expression
-                    System.out.println(expressionStatus);
-                    expression = reader.readLine();
-                    continue;
-                };
+                    return expressionStatus;
+                }
 
-                // print the expression upon successful evaluation
-                System.out.println(operand);
-
-                expression = reader.readLine();
+                // operand evaluation successful
+                return "valid";
 
             } else {
                 // Handle Literal =C'ABC' and =X'1E'
@@ -101,13 +89,11 @@ public class OperandUtility{
                 // Convert =C'ABC' or =X'1E' to C'ABC' or X'1E'
                 expression = expression.substring(1);
 
+                // test for literal starting with 'C' or 'c', 'X' or 'x' character
                 if(!(expression.charAt(0) == 'C' | expression.charAt(0)=='c' | expression.charAt(0) == 'X' | expression.charAt(0) == 'x')){
-                    // test for literal starting with 'C' or 'c', 'X' or 'x' character
-                    System.out.println(original + " (Error : Character literal must start with 'C'/'c' or 'X'/'x' character)");
-                    expression = reader.readLine();
-                    continue;
+                    return original + " (Error : Character literal must start with 'C'/'c' or 'X'/'x' character)";
                 } else {
-                    // Fix for C/c and X/x mismatch
+                    // Convert c'ABC' to C'ABC' to ensure they are the same literal
                     StringBuilder stringBuilder = new StringBuilder(expression);
                     if(expression.charAt(0) == 'C' | expression.charAt(0)=='c'){
                         stringBuilder.setCharAt(0, 'C');
@@ -117,23 +103,20 @@ public class OperandUtility{
                     expression = stringBuilder.toString();
                 }
 
+                // test for literals starting and ending with ' character
                 if(expression.charAt(1) != '\'' & expression.charAt(expression.length()-1) != '\''){
-                    // test for literals starting and ending with ' character
-                    System.out.println(original + " (Error : Literal must be enclosed with \' and \' character)");
-                    expression = reader.readLine();
-                    continue;
+                    return original + " (Error : Literal must be enclosed with \' and \' character)";
                 }
 
+                // *** Handle Character Literals ***
                 if(expression.charAt(0) == 'C' | expression.charAt(0) == 'c'){
-                    // Handle Character Literals
 
                     literal.name = expression;
 
                     // converting C'Test' to Test
                     expression = expression.substring(2, expression.length()-1);
 
-
-                    // Convert characters to equivalent Hex value. Char A > 65(10) > 41(16)
+                    // Convert characters to equivalent Hex values. Char A > 65(10) > 41(16)
                     String charHexString = "";
                     for(int i =0;i<expression.length(); i++){
                         char ch = expression.charAt(i);
@@ -146,7 +129,7 @@ public class OperandUtility{
                     literal.address = Literal.currentStaticAddress;
 
                 } else if(expression.charAt(0) == 'X' | expression.charAt(0) == 'x'){
-                    // Handle Hex Literal
+                    // *** Handle Hex Literal ***
 
                     // convert 1e to 1E
                     expression = expression.toUpperCase();
@@ -158,16 +141,12 @@ public class OperandUtility{
 
                     // Test if the Hex value is valid
                     if(!Utility.isHex(expression)){
-                        System.out.println(original + " (Error : Invalid Hex value)");
-                        expression = reader.readLine();
-                        continue;
+                        return original + " (Error : Invalid Hex value)";
                     }
 
                     // Test if the Hex value length
                     if(expression.length() % 2 != 0){
-                        System.out.println(original + " (Error : Hex literal value length must be a multiple of 2)");
-                        expression = reader.readLine();
-                        continue;
+                        return original + " (Error : Hex literal value length must be a multiple of 2)";
                     }
 
                     // populate the literal object
@@ -176,7 +155,7 @@ public class OperandUtility{
                     literal.address = Literal.currentStaticAddress;
                 }
 
-                // Insert literal into literal table
+                //  *** Insert literal into literal table ***
                 if(literalLnkdLst.isEmpty()){
                     // insert if the literal list is empty
                     literalLnkdLst.add(literal);
@@ -189,7 +168,7 @@ public class OperandUtility{
                             break;
                         }
 
-                        // Not duplicate literal found so add the literal to the linked list
+                        // Not duplicate literal found and end of the file is reached, so add the literal to the linked list
                         if(!literal.name.equals(literalLnkdLst.get(i).name) && i+1 == literalLnkdLst.size()){
                             literalLnkdLst.add(literal);
                             Literal.currentStaticAddress++;
@@ -198,9 +177,13 @@ public class OperandUtility{
                     }
                 }
 
-                expression = reader.readLine();
+                // literal evaluation successful
+                return "valid";
             }
         }
+
+        // Execution shouldn't reach here
+        return "Unknown operand error";
     }
 
     /**
@@ -213,8 +196,8 @@ public class OperandUtility{
      * @return If no error is found, "valid" string is returned, otherwise description of the error is returned.
      *         The method is terminated upon an error.
      */
-    private static String validateExp(String expression, Operand operand, SymbolTable symbolTable){
-        StringTokenizer tokenizer = new StringTokenizer(expression, "+-");
+    private static String evaluateExpression(String expression, Operand operand, SymbolTable symbolTable){
+         StringTokenizer tokenizer = new StringTokenizer(expression, "+-");
 
          if((expression.contains("+") || expression.contains("-")) & tokenizer.countTokens() > 1){
             // handles Symbol+Symbol, Symbol+literal
@@ -225,6 +208,7 @@ public class OperandUtility{
              int token1Value, token2Value;
              boolean token1rflag, token2rflag;
 
+             // Get the value for token1Value and token1rflag
              if(Utility.isInteger(token1)){
                  // if token1 is a numeric literal
                  token1Value = Integer.parseInt(token1);
@@ -242,9 +226,9 @@ public class OperandUtility{
                  return token1 + " (Error : Invalid Symbol)";
              }
 
-
+             // Get the value for token2Value and token2rflag
              if(Utility.isInteger(token2)){
-                 // if token1 is a numeric literal
+                 // if token2 is a numeric literal
                  token2Value = Integer.parseInt(token2);
                  token2rflag = false;
              }else if(SymbolTableUtility.validateSymbol(token2) == SymbolStatus.Valid){
@@ -281,9 +265,8 @@ public class OperandUtility{
                 operand.relocability = true;
             else if(relocability.equals("false"))
                 operand.relocability = false;
-            else{
+            else
                 return original + " (Error : " + relocability + ")";
-            }
 
         } else {
             // Symbol / single literal

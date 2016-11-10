@@ -15,7 +15,6 @@ import Assembler.Utility;
 
 public class BinaryTree{
     private Node rootNode;
-    private int viewCount = 0;
 
     /**
      * Private method to insert the node to the binary tree.
@@ -113,15 +112,7 @@ public class BinaryTree{
             view(node.leftNode);
         }
 
-        // TODO add it to another Data structure, that can be accessed via binaryTree.getAll()
-        {
-            System.out.println(node);
-            viewCount++;
-//            if((viewCount % 20)==0){
-//                Utility.enterToContinue();
-//            }
-        }
-
+        System.out.println(node);
 
         if(node.rightNode != null){
             view(node.rightNode);

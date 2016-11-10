@@ -8,6 +8,9 @@ public class Operand {
     public int value;
     public boolean relocability, nbit, ibit, xbit;
 
+    public boolean errorflag;
+    public boolean errorStatus;
+
     /*
      * This method returns a formatted operand attribute
      */

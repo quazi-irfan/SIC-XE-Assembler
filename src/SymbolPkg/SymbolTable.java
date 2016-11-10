@@ -15,6 +15,10 @@ import java.util.StringTokenizer;
 public class SymbolTable {
     BinaryTree binaryTree = new BinaryTree();
 
+    public void add(Node symbol){
+        binaryTree.insert(symbol);
+    }
+
     /**
      * Read an entire line, validate every token. Upon successful validation, enter the symbol into the symbol table.
      * This function will use StringTokenizer to parse individual attributes.
@@ -76,7 +80,6 @@ public class SymbolTable {
             binaryTree.insert(node);
             System.out.println(node);
         }
-
     }
 
     /**

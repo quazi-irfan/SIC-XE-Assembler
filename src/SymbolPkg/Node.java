@@ -11,7 +11,7 @@ public class Node{
     // this node
     String key;
     public int value;
-    public boolean rflag, iflag, mflag;
+    public boolean rflag = true, iflag = true, mflag = false;
 
     /**
      * Default no parameter constructor
@@ -56,8 +56,8 @@ public class Node{
      */
     @Override
     public String toString(){
-        String output = String.format("%1$-8s %2$-9d %3$-7d %4$-7d %5$d",
-                key, value,
+        String output = String.format("%1$-8s %2$-9s %3$-7d %4$-7d %5$d",
+                key, Integer.toHexString(value).toUpperCase(),
                 (this.rflag) ? 1 : 0,
                 (this.iflag) ? 1 : 0,
                 (this.mflag) ? 1 : 0);
