@@ -58,4 +58,75 @@ public class Utility {
         // only got here if we didn't return false
         return true;
     }
+
+    /**
+     * Given decimal number this fucntion will return a left padded hex number of given length.
+     * Requesting padding of a number that can't be accomodated with the length will return wrong value.
+     * @param decimalValue The decimal value we need to pad
+     * @param length The desired length
+     * @return  Returns the hex value of the decimal number with left padded with zero.
+     */
+
+    public static String pad(int decimalValue, int length){
+        int padCount;
+
+        if(decimalValue < 0){
+            String negHexValue = Integer.toHexString(decimalValue);
+            String resizedHexValue = negHexValue.substring(negHexValue.length()-length, negHexValue.length());  // fffffc > ffc
+            return resizedHexValue.toUpperCase();
+        }
+
+        // when hex value is within 10 and FF (inclusive)
+        if(decimalValue >= 16 && decimalValue <= 255)
+            padCount = length - 2;
+
+        // when hex value is within 100 and FFF (inclusive)
+        else if(decimalValue >= 256 && decimalValue <= 4095)
+            padCount = length - 3;
+
+        // when hex value is within 1000 and FFFF (inclusive)
+        else if(decimalValue >= 4096 && decimalValue <= 65535)
+            padCount = length - 4;
+
+        // when hex value is within 0 and F
+        else
+            padCount = length - 1;
+
+        // add zero's
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i<padCount; i++)
+            sb.append('0');
+
+        // add the hex value after zero
+        sb.append(Integer.toHexString(decimalValue));
+
+        return sb.toString().toUpperCase();
+    }
+
+    public static String pad(String s){
+        int padCount;
+
+        // if label size < 4
+        if(s.length() < 4) {
+            padCount = 4 - s.length();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < padCount; i++)
+                sb.append(' ');
+
+            s = s.concat(sb.toString());
+
+            return s;
+        }
+
+        // if label size > 4
+        else if(s.length() > 4) {
+            return s.substring(0, 4);
+        }
+
+        // if label size = 4
+        else {
+            return s;
+        }
+    }
 }

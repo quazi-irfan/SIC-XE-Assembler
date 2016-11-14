@@ -5,24 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class SymbolTableUtility {
-    public static void populateSymbolTable(SymbolTable symbolTable, String symbolFile){
-        // Populate the Symbol Table from a File
-        System.out.println("*** Populating Symbol table : " + symbolFile + " ** ");
-        try(BufferedReader inputReader = new BufferedReader(new FileReader(symbolFile))){
-            String inputLine = inputReader.readLine();
-
-            // extract symbol info and add it to symbol table
-            while(inputLine != null){
-                symbolTable.add(inputLine);
-                inputLine = inputReader.readLine();
-            }
-            System.out.println();
-        } catch (IOException e){
-            System.out.println("Problem opening file : " + symbolFile);
-        }
-
-    }
-
     public static void testSymbolTable(SymbolTable symbolTable, String symbolFile) throws IOException{
         // Test the symbol table with a test symbols
         System.out.println("\n*** Reading symbols from file : " + symbolFile + " ** ");

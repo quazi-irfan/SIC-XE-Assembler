@@ -14,15 +14,20 @@ import java.util.StringTokenizer;
  */
 public class OperandUtility{
     private static String original;
+    public static Operand operand;
+    public static Literal literal;
 
     /**
      * This method does the initial Expression evalution.
      *
      * @param symbolTable Take the symbol table to compare the Exparesions with
-     * @param literalLnkdLst Holds the Linked link populated with literals
+     * @param literalTable Holds the Linked link populated with literals
      * @param expression operand to be evaluated
      */
-    public static String evaluateOperand(SymbolTable symbolTable, LinkedList<Literal> literalLnkdLst, String expression) throws IOException{
+    public static String evaluateOperand(SymbolTable symbolTable, LinkedList<Literal> literalTable, String expression) throws IOException{
+        operand = new Operand();
+        literal = new Literal();
+
         if(expression != null && expression.length() > 0){
             // original string hold the unaltered expression
             original = expression;
@@ -33,31 +38,32 @@ public class OperandUtility{
                 // If not literal make everything upper cased.
                 expression = expression.toUpperCase();
 
-                Operand operand = new Operand();
                 operand.expression = expression;
 
                 // operand n,i anx x bits are 0 by default
                 if (expression.charAt(0) == '#') {
                     // for #expression
-                    operand.ibit = true;
+                    operand.Ibit = true;
                     expression = expression.substring(1);
                 } else if (expression.charAt(0) == '@') {
                     // for @expression
-                    operand.nbit = true;
+                    operand.Nbit = true;
                     expression = expression.substring(1);
                 } else if (Character.isDigit(expression.charAt(0)) & !(expression.contains("+") | expression.contains("-"))) {
                     // for 6 and doesn't' contain + or - char
-                    operand.nbit = false;
-                    operand.ibit = true;
-                } else if ((expression.charAt(0) == '+' | expression.charAt(0) == '-') & Character.isDigit(expression.charAt(1))){
+                    operand.Nbit = false;
+                    operand.Ibit = true;
+                } else if (expression.length() > 1
+                        &&
+                        ((expression.charAt(0) == '+' | expression.charAt(0) == '-') & Character.isDigit(expression.charAt(1)))){
                     // for +6 or -6
-                    operand.nbit = false;
-                    operand.ibit = true;
+                    operand.Nbit = false;
+                    operand.Ibit = true;
                 } else {
                     // for expression OR expression+expression
-                    // but for literal + literal nbit and ibit has to be set 0 and 1
-                    operand.nbit = true;
-                    operand.ibit = true;
+                    // but for literal + literal Nbit and Ibit has to be set 0 and 1
+                    operand.Nbit = true;
+                    operand.Ibit = true;
                 }
 
                 // checks for expression,X
@@ -68,7 +74,7 @@ public class OperandUtility{
                     }
 
                     // We have valid expression,X
-                    operand.xbit = true;
+                    operand.Xbit = true;
                     expression = expression.substring(0, expression.length() - 2);
                 }
 
@@ -78,13 +84,13 @@ public class OperandUtility{
                     return expressionStatus;
                 }
 
+//                System.out.println(operand);
+
                 // operand evaluation successful
                 return "valid";
 
             } else {
                 // Handle Literal =C'ABC' and =X'1E'
-
-                Literal literal = new Literal();
 
                 // Convert =C'ABC' or =X'1E' to C'ABC' or X'1E'
                 expression = expression.substring(1);
@@ -156,21 +162,22 @@ public class OperandUtility{
                 }
 
                 //  *** Insert literal into literal table ***
-                if(literalLnkdLst.isEmpty()){
+                if(literalTable.isEmpty()){
                     // insert if the literal list is empty
-                    literalLnkdLst.add(literal);
+                    literalTable.add(literal);
                     Literal.currentStaticAddress++;
                 } else {
                     // literal list isn't empty
-                    for(int i =0; i<literalLnkdLst.size(); i++){
+                    for(int i =0; i<literalTable.size(); i++){
                         // Check for duplicate literals
-                        if(literal.name.equals(literalLnkdLst.get(i).name)){
+                        if(literal.name.equals(literalTable.get(i).name)){
                             break;
                         }
 
                         // Not duplicate literal found and end of the file is reached, so add the literal to the linked list
-                        if(!literal.name.equals(literalLnkdLst.get(i).name) && i+1 == literalLnkdLst.size()){
-                            literalLnkdLst.add(literal);
+                        if(!literal.name.equals(literalTable.get(i).name) && i+1 == literalTable.size()){
+                            literalTable.add(literal);
+//                            System.out.println(literal);
                             Literal.currentStaticAddress++;
                             break;
                         }
@@ -248,10 +255,10 @@ public class OperandUtility{
             if(Utility.isInteger(token1) & Utility.isInteger(token2) & original.contains("@"))
                 return original + " (Error : @Literal or #Literal is not legal)";
 
-            // FIX : for expression 2+2 nbit and ibit should be 0 and 1
+            // FIX : for expression 2+2 Nbit and Ibit should be 0 and 1
             if(Utility.isInteger(token1) & Utility.isInteger(token2)) {
-                operand.nbit = false;
-                operand.ibit = true;
+                operand.Nbit = false;
+                operand.Ibit = true;
             }
 
             // Set the value and flag of the Operand

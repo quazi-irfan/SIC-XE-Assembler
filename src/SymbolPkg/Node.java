@@ -11,7 +11,7 @@ public class Node{
     // this node
     String key;
     public int value;
-    public boolean rflag = true, iflag = true, mflag = false;
+    public boolean rflag = true, iflag = true, mflag; // default is false
 
     /**
      * Default no parameter constructor

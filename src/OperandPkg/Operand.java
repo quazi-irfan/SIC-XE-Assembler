@@ -6,7 +6,7 @@ package OperandPkg;
 public class Operand {
     public String expression;
     public int value;
-    public boolean relocability, nbit, ibit, xbit;
+    public boolean relocability, Nbit, Ibit, Xbit; // default to false
 
     public boolean errorflag;
     public boolean errorStatus;
@@ -19,9 +19,9 @@ public class Operand {
                 expression,
                 value,
                 (relocability ? "Relative":"Absolute"),
-                (nbit? "1":"0"),
-                (ibit? "1":"0"),
-                (xbit? "1":"0"));
+                (Nbit ? "1":"0"),
+                (Ibit ? "1":"0"),
+                (Xbit ? "1":"0"));
 
         return output;
     }

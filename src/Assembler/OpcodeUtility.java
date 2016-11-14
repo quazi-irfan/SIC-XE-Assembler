@@ -17,6 +17,12 @@ public class OpcodeUtility {
      * @return Returns opcode if found from instructions.txt, or returns -1
      */
     public static int getFormat(String opcode){
+        boolean format4 = false;
+        if(opcode.contains("+")) {
+            format4 = true;
+            opcode = opcode.substring(1);
+        }
+
         try(BufferedReader inputReader = new BufferedReader(new FileReader("instructions.txt"))){
             String instruction = inputReader.readLine();
             StringTokenizer tokenizer;
@@ -24,7 +30,11 @@ public class OpcodeUtility {
                 tokenizer = new StringTokenizer(instruction, " ");
                 if(tokenizer.hasMoreTokens()){
                     if(tokenizer.nextToken().equals(opcode)){
-                        return Integer.parseInt(tokenizer.nextToken());
+                        // if opcode found fetch the second column or return 4 if format4 is true
+                        if(format4)
+                            return 4;
+                        else
+                            return Integer.parseInt(tokenizer.nextToken());
                     }
                 }
                 instruction = inputReader.readLine();
@@ -42,6 +52,9 @@ public class OpcodeUtility {
      * @return Returns Hex code as String if found from instructions.txt, or returns null
      */
     public static String getHexCode(String opcode){
+        if(opcode.contains("+"))
+            opcode = opcode.substring(1);
+
         try(BufferedReader inputReader = new BufferedReader(new FileReader("instructions.txt"))){
             String instruction = inputReader.readLine();
             StringTokenizer tokenizer;
@@ -49,6 +62,7 @@ public class OpcodeUtility {
                 tokenizer = new StringTokenizer(instruction, " ");
                 if(tokenizer.hasMoreTokens()){
                     if(tokenizer.nextToken().equals(opcode)){
+                        // if opcode found fetch the third column
                         tokenizer.nextToken();
                         return tokenizer.nextToken();
                     }

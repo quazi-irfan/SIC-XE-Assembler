@@ -26,7 +26,7 @@ public class SymbolTable {
      *
      * @param line Feed an entire line from the source file.
      */
-    public void add(String line){
+    public void addLine(String line){
         StringTokenizer tokenizer = new StringTokenizer(line);
         Node node = new Node();
 
@@ -78,7 +78,6 @@ public class SymbolTable {
             node.setIflag(true);
             node.setMflag(false);
             binaryTree.insert(node);
-            System.out.println(node);
         }
     }
 
