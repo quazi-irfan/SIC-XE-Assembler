@@ -3,6 +3,7 @@ package Assembler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 
 /**
  * This Utility class is meant for temporary code segments that doesn't fit in other classes.
@@ -128,5 +129,20 @@ public class Utility {
         else {
             return s;
         }
+    }
+
+    public static int getRegisterValue(String s){
+        HashMap<String, Integer> registerTable= new HashMap<>();
+        registerTable.put("A", 0);
+        registerTable.put("X", 1);
+        registerTable.put("L", 2);
+        registerTable.put("B", 3);
+        registerTable.put("S", 4);
+        registerTable.put("T", 5);
+        registerTable.put("F", 6);
+        registerTable.put("PC", 8);
+        registerTable.put("SW", 9);
+
+        return registerTable.get(s);
     }
 }

@@ -16,6 +16,7 @@ public class Pass1Utility {
     public static int startAddress = 0;
     public static int LineCounter = startAddress;   // both startAddress and LineCounter will change if START directive is found
     public static int programLength = 0;
+    public static String controlSectionName = "unnamed";
 
     public static void populateTableGenerateInt(
             String assemblyFileName, SymbolTable symbolTable, LinkedList<Literal> literalTable)
@@ -89,6 +90,7 @@ public class Pass1Utility {
                 if(opcode.equals("START") && Utility.isInteger(operand)) {
                     startAddress = Integer.parseInt(operand);
                     LineCounter = startAddress;
+                    controlSectionName = label;
                 }
 
                 if(operand.equals("*") && symbol != null) {

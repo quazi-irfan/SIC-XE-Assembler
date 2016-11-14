@@ -2,6 +2,7 @@ package SymbolPkg;
 
 import Assembler.Utility;
 
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -98,5 +99,41 @@ public class SymbolTable {
      */
     public Node search(String symbol){
         return binaryTree.search(new Node(symbol));
+    }
+
+    /**
+     * Call getAll() method of the BinaryTree.
+     * @return returns an ArrayList<Node> of all sybmols in the symbol table.
+     */
+    public ArrayList<Node> getAll(){
+        return binaryTree.getAll();
+    }
+
+    /**
+     * Get all external symbols
+     * @return Returns a ArrayList<Node> that contains all symbols from the symbo table with iflag set to true.
+     */
+    public ArrayList<Node> getAllExternal(){
+        ArrayList<Node> allExternal = new ArrayList<>();
+
+        for(Node symbol : getAll()){
+            if(!symbol.iflag){
+                allExternal.add(symbol);
+            }
+        }
+
+        return allExternal;
+    }
+
+    public ArrayList<Node> getAllInternal(){
+        ArrayList<Node> allInternal = new ArrayList<>();
+
+        for(Node symbol : getAll()){
+            if(symbol.iflag){
+                allInternal.add(symbol);
+            }
+        }
+
+        return allInternal;
     }
 }

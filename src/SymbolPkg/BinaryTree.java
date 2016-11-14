@@ -2,6 +2,8 @@ package SymbolPkg;
 
 import Assembler.Utility;
 
+import java.util.ArrayList;
+
 /**
  *  BinaryTree class manages the Binary Tree.
  *  It provides insert, search and view the contents of the Binary Tree.
@@ -129,6 +131,28 @@ public class BinaryTree{
     public void view(){
         if(rootNode != null){
             view(rootNode);
+        }
+    }
+
+    public ArrayList<Node> getAll(){
+        ArrayList<Node> nodeList = new ArrayList<>();
+
+        if(rootNode != null){
+            getAll(rootNode, nodeList);
+        }
+
+        return nodeList;
+    }
+
+    private void getAll(Node node, ArrayList<Node> nodeList){
+        if(node.leftNode != null){
+            getAll(node.leftNode, nodeList);
+        }
+
+        nodeList.add(node);
+
+        if(node.rightNode != null){
+            getAll(node.rightNode, nodeList);
         }
     }
 

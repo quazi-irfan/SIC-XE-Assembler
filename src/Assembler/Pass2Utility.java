@@ -9,13 +9,16 @@ import SymbolPkg.SymbolTable;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
 /**
- *  Pass2 class of SIC Assembler
+ *  Pass2 class of SICXE Assembler
  */
 public class Pass2Utility {
+    public static ArrayList<String> MRecordLists = new ArrayList<>();
+
     public static void generateObj(String inputFile, SymbolTable symbolTable, LinkedList<Literal> literalTable) throws IOException{
         inputFile = inputFile.substring(0, inputFile.indexOf('.')).concat(".int");
 
@@ -39,7 +42,6 @@ public class Pass2Utility {
             }
 
             if(fields[2].equals("BASE") | fields[2].equals("EQU") | fields[2].equals("RESB") | fields[2].equals("RESW")){
-                // terminate and dump pending t records, and start a new t record
                 System.out.println(instruction + " -");    // printing objectcode
                 instruction = reader.readLine();
                 continue;
@@ -54,6 +56,7 @@ public class Pass2Utility {
                     int symbolValue = symbolTable.search(symbolName).getValue();
                     objectCode = objectCode.concat("^").concat(Utility.pad(symbolName)).concat("^").concat(Utility.pad(symbolValue, 6));
                 }
+
                 System.out.println(objectCode); // printing objectcode
                 instruction = reader.readLine();
                 continue;
@@ -72,6 +75,7 @@ public class Pass2Utility {
 
                     objectCode = objectCode.concat("^").concat(Utility.pad(symbolName));
                 }
+
                 System.out.println(objectCode);               // printing objectcode
                 instruction = reader.readLine();
                 continue;
@@ -79,8 +83,8 @@ public class Pass2Utility {
 
             // handle BYTE C'abc'
             if(fields[2].equals("BYTE")){
+                // handle BYTE C'AB'
                 if(fields[3].contains("C'")){
-                    // generate the object code
                     fields[3] = fields[3].substring(fields[3].indexOf("'")+1, fields[3].lastIndexOf("'"));
                     String charHexValue = "";
                     for(int i = 0; i<fields[3].length(); i++) {
@@ -96,21 +100,26 @@ public class Pass2Utility {
                 else {
                     fields[3] = fields[3].substring(fields[3].indexOf("'")+1, fields[3].lastIndexOf("'"));
                     objectCode = fields[3];
+
                     System.out.println(instruction + " " + objectCode.toUpperCase()); // printing objectcode
+                    MRecordLists.addAll(generateMRecord(fields, symbolTable));
                     instruction = reader.readLine();
                     continue;
                 }
 
             }
-
-            // handle WORD 97
+            // handle WORD 97 or WORD ONE-TWO
             else if(fields[2].equals("WORD")){
-                objectCode = Utility.pad(Integer.parseInt(fields[3]), 5);
-                System.out.println(instruction + " " + objectCode.toUpperCase()); // printing objectcode
+                OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
+                objectCode = Utility.pad(OperandUtility.operand.value, 6);
+
+                System.out.println(instruction + " " + objectCode); // printing objectcode
+                MRecordLists.addAll(generateMRecord(fields, symbolTable));
                 instruction = reader.readLine();
                 continue;
             }
 
+            // All the remaining Opcode
             // lineCounter-field[0]   label-field[1]   opcode-field[2]     operand-field[3]
             if(!fields[2].equals("END")){
                 // *** Part 1 :: OpcodeNI
@@ -123,27 +132,27 @@ public class Pass2Utility {
 
                 // format 1
                 if(OpcodeUtility.getFormat(fields[2]) == 1) {
-                    objectCode = objectCode.concat("0000");
+//                    objectCode = objectCode.concat("0000");
+
                     System.out.println(instruction + " " + objectCode); // printing objectcode
                     instruction = reader.readLine();
                     continue;
                 }
 
                 // format 2
-                else if(OpcodeUtility.getFormat(fields[2]) == 2){
+                if(OpcodeUtility.getFormat(fields[2]) == 2){
                     StringTokenizer tokenizer = new StringTokenizer(fields[3], ",");
 
                     while(tokenizer.hasMoreTokens()){
-                        String symbolName = tokenizer.nextToken();
-                        Node tempSymbol = symbolTable.search(symbolName);
-                        if(tempSymbol != null){
-                            objectCode = objectCode.concat(Integer.toString(tempSymbol.value));
+                        String registerName = tokenizer.nextToken();
+                        if(registerName != null){
+                            objectCode = objectCode.concat(Integer.toString(Utility.getRegisterValue(registerName)));
                         } else {
                             objectCode = objectCode.concat("0");
                         }
                     }
 
-                    while (objectCode.length()<4){
+                    while (objectCode.length()<4) {
                         objectCode = objectCode.concat("0");
                     }
 
@@ -154,7 +163,7 @@ public class Pass2Utility {
 
                 // X bit
                 int XBPE = 0;
-                if(OperandUtility.operand.Xbit) {
+                if(OperandUtility.operand.Xbit){
                     XBPE += 8;
                 }
 
@@ -164,6 +173,7 @@ public class Pass2Utility {
                     // if there is no operand in a format 3 instruction
                     if(fields[3] == null){
                         objectCode = objectCode.concat("0000");
+
                         System.out.println(instruction + " " + objectCode);
                         instruction = reader.readLine();
                         continue;
@@ -173,6 +183,7 @@ public class Pass2Utility {
                     // for non-relocatable operand, appended the value at the end of object code
                     if(!OperandUtility.operand.relocability & fields[3].charAt(0) != '='){   // if rflag = false == true AND there is no literal
                         objectCode = objectCode.concat(Utility.pad(OperandUtility.operand.value, 4)); // #ARRAY OR 5 or 5+7
+
                         System.out.println(instruction + " " + objectCode); // printing objectcode
                     }
 
@@ -202,6 +213,7 @@ public class Pass2Utility {
                             // before using Base relative addressing
 
                             XBPE += 3;
+                            // TODO handle base register addressing mode
                             System.out.println("USE BASE RELATIVE ADDRESSING!");
                         }
                     }
@@ -209,10 +221,14 @@ public class Pass2Utility {
 
                 // if there is +LDA
                 // format 4 & Address
-                else if(OpcodeUtility.getFormat(fields[2]) == 4){
+                else if(OpcodeUtility.getFormat(fields[2]) == 4) {
                     XBPE += 1;
-                    objectCode = objectCode.concat(Utility.pad(XBPE,1)).concat(Utility.pad(OperandUtility.operand.value, 5));
+                    OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
+                    objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(OperandUtility.operand.value, 5));
                     System.out.println(instruction + " " + objectCode); // printing objectcode
+
+                    MRecordLists.addAll(generateMRecord(fields, symbolTable));
+
                 }
 
                 // after processing format 3 and format 4 instruction, go to next line
@@ -225,14 +241,67 @@ public class Pass2Utility {
                 // END directive with operand
                 if(fields[3] != null) {
                     OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
-                    System.out.println(instruction + " " + "E^" + Utility.pad(OperandUtility.operand.value, 6));
+                    objectCode = objectCode.concat("E^").concat(Utility.pad(OperandUtility.operand.value, 6));
                 } else {
-                    System.out.println(instruction + " " + "E^");
+                    objectCode = objectCode.concat("E^");
                 }
+                System.out.println(instruction + " " + objectCode); // printint object code
                 instruction = reader.readLine();
                 continue;
             }
         }
+
+        for(String mrecord : MRecordLists)
+            System.out.println(mrecord);
+    }
+
+    /**
+     * Generate M records given the Symbol Table, and the full instruction as an array of string.
+     * @param fields Given instruction split into array of strings
+     * @param symbolTable symbol table to check for the rflag of the symbol found in the operand
+     * @return Returns the list of generated M records.
+     */
+    private static ArrayList<String> generateMRecord(String[] fields, SymbolTable symbolTable) {
+        ArrayList<String> MRecordList = new ArrayList<>();
+
+        int offset = 0;
+        String nibbles;
+        if(fields[2].equals("WORD") | fields[2].equals("BYTE")){
+            nibbles = "06";
+            offset = 0;
+        }
+        else {
+            nibbles = "05";
+            offset = 1;
+        }
+
+        // always M record for external symbol
+        for (Node symbol : symbolTable.getAllExternal()) {
+            int index = fields[3].indexOf(symbol.getKey()); // find if the symbol exists in the operand
+
+            if (index != -1) {
+                char ch = getSign(fields[3], index); // check for sign
+                String genMRec = "M^" + Utility.pad(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.pad(symbol.getKey());
+                MRecordList.add(genMRec);
+            }
+        }
+
+        // if the operand is relocatable, M record for all relocatable symbols
+        if(OperandUtility.operand.relocability) {
+            for (Node symbol : symbolTable.getAll()) {
+                int index = fields[3].indexOf(symbol.getKey()); // find if the symbol exists in the operand
+                String controlSection = (symbol.getIflag() ? Pass1Utility.controlSectionName : symbol.getKey()); // identify control section
+
+                if (index != -1 && symbol.rflag) {
+                    char ch = getSign(fields[3], index); // check for sign
+                    String genMRec = "M^" + Utility.pad(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.pad(controlSection);
+                    MRecordList.add(genMRec);
+                    break;
+                }
+            }
+        }
+
+        return MRecordList;
     }
 
     /**
@@ -261,21 +330,31 @@ public class Pass2Utility {
 
         // get operand if exists
         if(tokenizer.hasMoreTokens())
-//        if(!(instruction.charAt(45) <= 32))
             fields[3] = tokenizer.nextToken();
 
         return fields;
     }
 
-    public static int getAddressingMode(Operand o){
-        if(!o.Nbit && o.Ibit)
+    /**
+     *
+     * @param operand
+     * @return
+     */
+    public static int getAddressingMode(Operand operand){
+        if(!operand.Nbit && operand.Ibit)
             return 1;
-        else if(o.Nbit && !o.Ibit)
+        else if(operand.Nbit && !operand.Ibit)
             return 2;
         else
             return 3;
     }
 
+    /**
+     *
+     * @param literalTable
+     * @param literalExpression
+     * @return
+     */
     private static int findLiteralAddress(LinkedList<Literal> literalTable, String literalExpression){
         literalExpression = literalExpression.substring(1);
 
@@ -287,6 +366,13 @@ public class Pass2Utility {
         return -1;
     }
 
+    /**
+     *
+     * @param currentLineCounter
+     * @param opcode
+     * @param operand
+     * @return
+     */
     private static int getNextLineCounter(int currentLineCounter, String opcode, String operand){
         int opcodeFormat = OpcodeUtility.getFormat(opcode);
 
@@ -315,5 +401,23 @@ public class Pass2Utility {
         }
 
         return currentLineCounter;
+    }
+
+    /**
+     *
+     * @param operand
+     * @param indexOfSymbol
+     * @return
+     */
+    private static char getSign(String operand, int indexOfSymbol){
+        try {
+            if (operand.charAt(indexOfSymbol - 1) == '-') {
+                return '-';
+            }
+        } catch(StringIndexOutOfBoundsException e) {
+            return '+';
+        }
+
+        return '+';
     }
 }

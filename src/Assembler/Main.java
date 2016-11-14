@@ -1,7 +1,6 @@
 package Assembler;
 
 import OperandPkg.Literal;
-import OperandPkg.OperandUtility;
 import SymbolPkg.*;
 
 import java.io.*;
@@ -28,6 +27,20 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalTable = new LinkedList<>();
 
+        String inputFile = "CS_Prog.txt";
+
+        System.out.println("> Generated Intermediate File");
+        Pass1Utility.populateTableGenerateInt(inputFile, symbolTable, literalTable);
+
+        System.out.println("\n> Symbol  Value\trflag\tiflag\tmflag");
+        symbolTable.view();
+
+        System.out.println("\n> literal\tValue\tlength\taddress");
+        for(Literal literal : literalTable)   System.out.println(literal);
+
+        System.out.println("\n> Generated Object code");
+        Pass2Utility.generateObj(inputFile, symbolTable, literalTable);
+
 //        // Populate Symbol Table
 //        System.out.println("*** SYMBOL TABLE ***\nSymbol\t Value\t rflag\t iflag\t mflag\t");
 //        BufferedReader symbolReader = new BufferedReader(new FileReader("OldTestFiles/A2_labels.txt"));
@@ -46,31 +59,6 @@ public class Main {
 //            OperandUtility.evaluateOperand(symbolTable, literalTable, operandLine);
 //            operandLine = operandReader.readLine();
 //        }
-
-        String inputFile = "CS_Func.txt";
-        Pass1Utility.populateTableGenerateInt(inputFile, symbolTable, literalTable);
-
-        // print the symbol table and literal table
-        System.out.println("> Symbol  Value\trflag\tiflag\tmflag");
-
-        // TODO are the relocaability of registers are false? Does it matter?
-        symbolTable.addLine("A  0   false");
-        symbolTable.addLine("X  1   false");
-        symbolTable.addLine("L  2   false");
-        symbolTable.addLine("B  3   false");
-        symbolTable.addLine("S  4   false");
-        symbolTable.addLine("T  5   false");
-        symbolTable.addLine("F  6   false");
-        symbolTable.addLine("PC  8   false");
-        symbolTable.addLine("SW  9   false");
-
-        symbolTable.view();
-        System.out.println("\n> literal\tValue\tlength\taddress");
-        for(Literal l : literalTable)
-            System.out.println(l);
-
-        System.out.println("\n> Generated Object code");
-        Pass2Utility.generateObj(inputFile, symbolTable, literalTable);
 
 //        Pass1Utility.populateTableGenerateInt("A3_1.txt", symbolTable, literalTable);
 //        System.out.println("************************************************************");
