@@ -30,6 +30,8 @@ public class Pass2Utility {
             String objectCode = "";
             String[] fields = getFields(instruction);
 
+// ********************************************************
+
             // if field[1] starts with * we have rached the literal dump section
             if(fields[1] != null && fields[1].equals("*")){
                 instruction = reader.readLine();
@@ -126,18 +128,20 @@ public class Pass2Utility {
                 continue;
             }
 
+ // ********************************************************
+
             // All the remaining Opcode
             // lineCounter-field[0]   label-field[1]   opcode-field[2]     operand-field[3]
             if(!fields[2].equals("END")){
                 // *** Part 1 :: OpcodeNI
-                OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]); // Doesn't handle old style literal operand
+                OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
                 int opcodeNI = Integer.parseInt(OpcodeUtility.getHexCode(fields[2]), 16)
                         + getAddressingMode(OperandUtility.operand);   // opcode hex + addressing mode
                 objectCode = objectCode.concat(Utility.pad(opcodeNI, 2));
 
                 // *** Part 2 :: XBPEDisplacement/Address
 
-                // format 1
+// format 1 ********************************************
                 if(OpcodeUtility.getFormat(fields[2]) == 1) {
 //                    objectCode = objectCode.concat("0000");
 
@@ -146,7 +150,8 @@ public class Pass2Utility {
                     continue;
                 }
 
-                // format 2
+ // format 2 ********************************************
+
                 if(OpcodeUtility.getFormat(fields[2]) == 2){
                     StringTokenizer tokenizer = new StringTokenizer(fields[3], ",");
 
@@ -174,7 +179,8 @@ public class Pass2Utility {
                     XBPE += 8;
                 }
 
-                // format 3 & BPEdisplacement
+// format 3 & BPEdisplacement *********************************
+
                 if(OpcodeUtility.getFormat(fields[2]) == 3){
 
                     // if there is no operand in a format 3 instruction
@@ -184,9 +190,11 @@ public class Pass2Utility {
                         System.out.println(instruction + " " + objectCode);
                         instruction = reader.readLine();
                         continue;
-                    } else {
-                        OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
                     }
+
+//                    else {
+//                        OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
+//                    }
 
                     // if there is #1000 or #ARRAY as operand in format 3 instruction
                     // for non-relocatable operand, appended the value at the end of object code
@@ -227,7 +235,7 @@ public class Pass2Utility {
                                         objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
                                         System.out.println(instruction + " " + objectCode + " (Using Base Relative addressing)");  // printing objectcode
                                     } else {
-                                        System.out.println(instruction +  " Error : Address out of range " + Utility.pad(targetAddress, 5));
+                                        System.out.println(instruction +  " Error : Address out of range " + Utility.pad(targetAddress, 5)); // printing objectcode
                                     }
                                 }
                                 // Use of Base register isn't set
@@ -251,8 +259,8 @@ public class Pass2Utility {
                     }
                 }
 
-                // if there is +LDA
-                // format 4 & Address
+// format 4 & Address ******************************
+
                 else if(OpcodeUtility.getFormat(fields[2]) == 4) {
                     XBPE += 1;
                     OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
@@ -268,7 +276,7 @@ public class Pass2Utility {
                 continue;
             }
 
-            // END directive has been reached
+// END directive has been reached   *****************
             else {
                 // END directive with operand
                 if(fields[3] != null) {
@@ -283,6 +291,7 @@ public class Pass2Utility {
             }
         }
 
+// END directive has been reached   *****************
         for(String mrecord : MRecordLists)
             System.out.println(mrecord);
     }
@@ -312,7 +321,7 @@ public class Pass2Utility {
             int index = fields[3].indexOf(symbol.getKey()); // find if the symbol exists in the operand
 
             if (index != -1) {
-                char ch = getSign(fields[3], index); // check for sign
+                char ch = getSignOfSymbol(fields[3], index); // check for sign
                 String genMRec = "M^" + Utility.pad(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.pad(symbol.getKey());
                 MRecordList.add(genMRec);
             }
@@ -325,7 +334,7 @@ public class Pass2Utility {
                 String controlSection = (symbol.getIflag() ? Pass1Utility.controlSectionName : symbol.getKey()); // identify control section
 
                 if (index != -1 && symbol.rflag) {
-                    char ch = getSign(fields[3], index); // check for sign
+                    char ch = getSignOfSymbol(fields[3], index); // check for sign
                     String genMRec = "M^" + Utility.pad(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.pad(controlSection);
                     MRecordList.add(genMRec);
                     break;
@@ -405,10 +414,11 @@ public class Pass2Utility {
      * @return
      */
     private static int getNextLineCounter(String[] fields){
+        // current list counter
         int currentLineCounter = Integer.parseInt(fields[0], 16);
-        int format = OpcodeUtility.getFormat(fields[2]);
 
-        // handle LDA STA
+        // handle format 1/2/3/4 opcode
+        int format = OpcodeUtility.getFormat(fields[2]);
         if(format != 0){
             return currentLineCounter + format;
         }
@@ -421,6 +431,10 @@ public class Pass2Utility {
                     return currentLineCounter + temp.length();
                 else
                     return currentLineCounter + temp.length() / 2;
+            }
+
+            else if(fields[2].equals("WORD")){
+                return currentLineCounter + 3;
             }
 
             else if(fields[2].equals("RESW")){
@@ -441,7 +455,7 @@ public class Pass2Utility {
      * @param indexOfSymbol
      * @return
      */
-    private static char getSign(String operand, int indexOfSymbol){
+    private static char getSignOfSymbol(String operand, int indexOfSymbol){
         try {
             if (operand.charAt(indexOfSymbol - 1) == '-') {
                 return '-';
