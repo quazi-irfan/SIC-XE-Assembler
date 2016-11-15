@@ -27,9 +27,9 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalTable = new LinkedList<>();
 
-        String inputFile = "SICXE Program 4.txt";
-//        String inputFile = "CS_Prog.txt";
-//        String inputFile = "A3_3.txt";
+//        String inputFile = "SICXE Program 4.txt";
+//        String inputFile = "CS_Func.txt";
+        String inputFile = "A3_0.txt";
         System.out.println("Reading from : " + inputFile );
 
         System.out.println("\n> Generated Intermediate File");
