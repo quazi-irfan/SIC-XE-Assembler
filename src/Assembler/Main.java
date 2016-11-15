@@ -27,9 +27,12 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalTable = new LinkedList<>();
 
-        String inputFile = "CS_Prog.txt";
+        String inputFile = "SICXE Program 4.txt";
+//        String inputFile = "CS_Prog.txt";
+//        String inputFile = "A3_3.txt";
+        System.out.println("Reading from : " + inputFile );
 
-        System.out.println("> Generated Intermediate File");
+        System.out.println("\n> Generated Intermediate File");
         Pass1Utility.populateTableGenerateInt(inputFile, symbolTable, literalTable);
 
         System.out.println("\n> Symbol  Value\trflag\tiflag\tmflag");

@@ -18,6 +18,8 @@ import java.util.StringTokenizer;
  */
 public class Pass2Utility {
     public static ArrayList<String> MRecordLists = new ArrayList<>();
+    public static boolean useBase = false;
+    public static int baseAddress = 0;
 
     public static void generateObj(String inputFile, SymbolTable symbolTable, LinkedList<Literal> literalTable) throws IOException{
         inputFile = inputFile.substring(0, inputFile.indexOf('.')).concat(".int");
@@ -41,7 +43,13 @@ public class Pass2Utility {
                 continue;
             }
 
-            if(fields[2].equals("BASE") | fields[2].equals("EQU") | fields[2].equals("RESB") | fields[2].equals("RESW")){
+            if(fields[2].equals("BASE")){
+                OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
+                baseAddress = OperandUtility.operand.value;
+                useBase = true;
+            }
+
+            if(fields[2].equals("EQU") | fields[2].equals("RESB") | fields[2].equals("RESW")){
                 System.out.println(instruction + " -");    // printing objectcode
                 instruction = reader.readLine();
                 continue;
@@ -102,7 +110,6 @@ public class Pass2Utility {
                     objectCode = fields[3];
 
                     System.out.println(instruction + " " + objectCode.toUpperCase()); // printing objectcode
-                    MRecordLists.addAll(generateMRecord(fields, symbolTable));
                     instruction = reader.readLine();
                     continue;
                 }
@@ -177,12 +184,15 @@ public class Pass2Utility {
                         System.out.println(instruction + " " + objectCode);
                         instruction = reader.readLine();
                         continue;
+                    } else {
+                        OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
                     }
 
                     // if there is #1000 or #ARRAY as operand in format 3 instruction
                     // for non-relocatable operand, appended the value at the end of object code
                     if(!OperandUtility.operand.relocability & fields[3].charAt(0) != '='){   // if rflag = false == true AND there is no literal
-                        objectCode = objectCode.concat(Utility.pad(OperandUtility.operand.value, 4)); // #ARRAY OR 5 or 5+7
+                        XBPE += 2;
+                        objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(OperandUtility.operand.value, 3)); // #ARRAY OR 5 OR 5+7
 
                         System.out.println(instruction + " " + objectCode); // printing objectcode
                     }
@@ -192,30 +202,52 @@ public class Pass2Utility {
                     else {
                         int targetAddress;
                         if(!(fields[3].charAt(0) == '='))
-                            targetAddress = OperandUtility.operand.value - getNextLineCounter(Integer.parseInt(fields[0], 16), fields[2],fields[3]);
+                            targetAddress = OperandUtility.operand.value - getNextLineCounter(fields);
                         else
-                            targetAddress = findLiteralAddress(literalTable, fields[3]) - getNextLineCounter(Integer.parseInt(fields[0], 16), fields[2],fields[3]);
+                            targetAddress = findLiteralAddress(literalTable, fields[3]) - getNextLineCounter(fields);
 
-                        // Use P bit
-                        // supported positive range 0 to + 2047 | 000 to 7FF | 0000 0000 0000 to 0111 1111 1111
-                        // supported negative rnage -2048 to -1 | 800 to FFF | 0111 1111 1111 to 1111 1111 1111
-                        if (targetAddress >= -2048 && targetAddress <= 2047) {
-                            XBPE += 2;
-                            objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
+                        // When we need to move forward
+                        if(OperandUtility.operand.value >= Integer.parseInt(fields[0], 16)){
+                            // check P range
+                            if (targetAddress >= 0 && targetAddress <= 2047) {
+                                XBPE += 2;
+                                objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
+                                System.out.println(instruction + " " + objectCode + " (Pos address within P range)");    // printing objectcode
+                                instruction = reader.readLine();
+                                continue;
+                            }
 
-                            System.out.println(instruction + " " + objectCode); // printing objectcode
+                            // check for B range
+                            else {
+                                // use Base register
+                                if(useBase){
+                                    XBPE += 4;
+                                    targetAddress = OperandUtility.operand.value - baseAddress;
+                                    if(targetAddress >= 0 && targetAddress <= 4095) { // 2^12 - 1 = 4096 - 1 = 4095
+                                        objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
+                                        System.out.println(instruction + " " + objectCode + " (Using Base Relative addressing)");  // printing objectcode
+                                    } else {
+                                        System.out.println(instruction +  " Error : Address out of range " + Utility.pad(targetAddress, 5));
+                                    }
+                                }
+                                // Use of Base register isn't set
+                                else {
+                                    System.out.println(instruction + " Error : Needs Base addressing to reach " + Utility.pad(targetAddress, 5)); // printing objectcode
+                                }
+                            }
                         }
 
-                        // Use B bit, supported range 0 to 4095
-                        else {
-                            // load the B register          LDB			#ARRAY
-                            // and use the BASE directive   BASE		ARRAY
-                            // before using Base relative addressing
-
-                            XBPE += 3;
-                            // TODO handle base register addressing mode
-                            System.out.println("USE BASE RELATIVE ADDRESSING!");
+                        // When we need to move backward
+                        else if(OperandUtility.operand.value < Integer.parseInt(fields[0], 16)){
+                            if(targetAddress <= -1 && targetAddress >= -2048){
+                                XBPE += 2;
+                                objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
+                                System.out.println(instruction + " " + objectCode + " (Neg address within P range)");    // printing objectcode
+                            } else {
+                                System.out.println(instruction + " Error : Addressing can't be reached via B or P.");   // printing objectcode
+                            }
                         }
+
                     }
                 }
 
@@ -356,6 +388,7 @@ public class Pass2Utility {
      * @return
      */
     private static int findLiteralAddress(LinkedList<Literal> literalTable, String literalExpression){
+        // remove the '=' character since none of the literal on literal table has that character
         literalExpression = literalExpression.substring(1);
 
         for(Literal literal : literalTable){
@@ -368,35 +401,34 @@ public class Pass2Utility {
 
     /**
      *
-     * @param currentLineCounter
-     * @param opcode
-     * @param operand
+     * @param fields
      * @return
      */
-    private static int getNextLineCounter(int currentLineCounter, String opcode, String operand){
-        int opcodeFormat = OpcodeUtility.getFormat(opcode);
+    private static int getNextLineCounter(String[] fields){
+        int currentLineCounter = Integer.parseInt(fields[0], 16);
+        int format = OpcodeUtility.getFormat(fields[2]);
 
         // handle LDA STA
-        if(opcodeFormat != 0){
-            return currentLineCounter + opcodeFormat;
+        if(format != 0){
+            return currentLineCounter + format;
         }
 
         // handle BYTE, WORD, RESB, RESW
         else {
-            if(opcode.equals("BYTE")){
-                String temp = operand.substring(operand.indexOf('\'')+1, operand.lastIndexOf('\''));
-                if(operand.contains("C"))
+            if(fields[2].equals("BYTE")){
+                String temp = fields[3].substring(fields[3].indexOf('\'')+1, fields[3].lastIndexOf('\''));
+                if(fields[2].contains("C"))
                     return currentLineCounter + temp.length();
                 else
                     return currentLineCounter + temp.length() / 2;
             }
 
-            else if(opcode.equals("RESW")){
-                return currentLineCounter + 3 * Integer.parseInt(operand);
+            else if(fields[2].equals("RESW")){
+                return currentLineCounter + 3 * Integer.parseInt(fields[3]);
             }
 
-            else if(opcode.equals("RESB")){
-                return currentLineCounter + Integer.parseInt(operand);
+            else if(fields[2].equals("RESB")){
+                return currentLineCounter + Integer.parseInt(fields[3]);
             }
         }
 
