@@ -23,8 +23,8 @@ public class Pass1Utility {
             throws IOException {
 
         // set the output file name, and set a output writer to write on that file
-        String incFile = assemblyFileName.substring(0, assemblyFileName.indexOf('.')).concat(".int");
-        PrintWriter incWriter = new PrintWriter(incFile, "UTF-8");
+        String intFile = assemblyFileName.substring(0, assemblyFileName.indexOf('.')).concat(".int");
+        PrintWriter intWriter = new PrintWriter(intFile, "UTF-8");
 
         // Take input and process SIC Instruction
         BufferedReader asmReader = new BufferedReader(new FileReader(assemblyFileName));
@@ -41,13 +41,7 @@ public class Pass1Utility {
             format = 0;
 
             // Remove comments from instruction
-            if(instruction.contains("$")) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < instruction.indexOf('$'); i++) {
-                    sb.append(instruction.charAt(i));
-                }
-                instruction = sb.toString();
-            }
+            instruction = Utility.removeComment(instruction);
 
             // After comment removal if there is no token, read the next line
             StringTokenizer tokenizer = new StringTokenizer(instruction);
@@ -146,7 +140,7 @@ public class Pass1Utility {
                     ((operand == null) ? " " : operand));
 
             // print the intermediate instruction to terminal and file
-            incWriter.println(intermediateInstruction);
+            intWriter.println(intermediateInstruction);
 
             // print the intermediate instruction to terminal
             instruction = asmReader.readLine();
@@ -156,7 +150,7 @@ public class Pass1Utility {
         for(Literal literal : literalTable){
             String intermediateInstruction = String.format("%-15s*              %-15s", Utility.pad(LineCounter-format, 5), literal.name);
 
-            incWriter.println(intermediateInstruction);
+            intWriter.println(intermediateInstruction);
 
             literal.address = LineCounter-format;
             LineCounter += literal.length;
@@ -167,7 +161,7 @@ public class Pass1Utility {
         programLength = LineCounter;
 
         // close the intermediate file
-        incWriter.close();
+        intWriter.close();
 
     }
 

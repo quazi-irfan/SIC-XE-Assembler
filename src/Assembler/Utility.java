@@ -159,4 +159,16 @@ public class Utility {
         }
 
     }
+
+    public static String removeComment(String instruction){
+        if(instruction.contains("$")) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < instruction.indexOf('$'); i++) {
+                sb.append(instruction.charAt(i));
+            }
+            instruction = sb.toString();
+        }
+
+        return instruction;
+    }
 }

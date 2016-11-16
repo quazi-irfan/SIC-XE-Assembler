@@ -5,6 +5,7 @@ import OperandPkg.Operand;
 import OperandPkg.OperandUtility;
 import SymbolPkg.Node;
 import SymbolPkg.SymbolTable;
+import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -46,13 +47,20 @@ public class Pass2Utility {
         objectWriter = new PrintWriter(objFile, "UTF-8");
 
         inputFile = inputFile.substring(0, inputFile.indexOf('.')).concat(".int");
-        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-        String instruction = reader.readLine();
+        BufferedReader intReader = new BufferedReader(new FileReader(inputFile));
+        String instruction = intReader.readLine();
         while (instruction != null){
             String objectCode = "";
             String[] fields = getFields(instruction);
 
-            OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
+            // ERROR HANDLING
+            String status = OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
+            if(status != "valid" && OpcodeUtility.getFormat(fields[2]) != 2){
+                objectCode = status;
+                txtWriter.printf("%-60s%s\n", instruction, objectCode);
+                instruction = intReader.readLine();
+                continue;
+            }
             Operand operand = OperandUtility.operand;
             Literal literal = OperandUtility.literal;
 
@@ -67,7 +75,7 @@ public class Pass2Utility {
 
                 txtWriter.println(instruction);
                 HRecord = objectCode;
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -78,7 +86,7 @@ public class Pass2Utility {
 
                 txtWriter.println(instruction);
                 TRecordLists.terminateTRecord();
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -87,7 +95,7 @@ public class Pass2Utility {
 
                 txtWriter.println(instruction);
                 TRecordLists.terminateTRecord();
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -105,7 +113,7 @@ public class Pass2Utility {
                 txtWriter.println(instruction);
                 DRecordLists.add(objectCode);
                 TRecordLists.terminateTRecord();
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -130,7 +138,7 @@ public class Pass2Utility {
                 txtWriter.println(instruction);
                 RRecordLists.add(objectCode);
                 TRecordLists.terminateTRecord();
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -149,7 +157,7 @@ public class Pass2Utility {
                     objectCode = hexValue.toUpperCase();
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
                     TRecordLists.add(objectCode, fields);
-                    instruction = reader.readLine();
+                    instruction = intReader.readLine();
                     continue;
                 }
 
@@ -161,7 +169,7 @@ public class Pass2Utility {
                     objectCode = hexValue.toUpperCase();
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
                     TRecordLists.add(objectCode, fields);
-                    instruction = reader.readLine();
+                    instruction = intReader.readLine();
                     continue;
                 }
 
@@ -175,7 +183,7 @@ public class Pass2Utility {
                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
                 TRecordLists.add(objectCode, fields);
                 MRecordLists.addAll(generateMRecord(fields, symbolTable));
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -186,9 +194,10 @@ public class Pass2Utility {
             if(fields[1] != null && fields[1].equals("*")){
                 objectCode = findLiteralValue(literalTable, fields[2]);
 
+                objectCode = objectCode.toUpperCase();
                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
                 TRecordLists.add(objectCode, fields);
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -204,7 +213,7 @@ public class Pass2Utility {
                 if(OpcodeUtility.getFormat(fields[2]) == 1) {
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
                     TRecordLists.add(objectCode, fields);
-                    instruction = reader.readLine();
+                    instruction = intReader.readLine();
                     continue;
                 }
 
@@ -226,7 +235,7 @@ public class Pass2Utility {
 
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
                     TRecordLists.add(objectCode, fields);
-                    instruction = reader.readLine();
+                    instruction = intReader.readLine();
                     continue;
                 }
 
@@ -245,7 +254,7 @@ public class Pass2Utility {
 
                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
                         TRecordLists.add(objectCode, fields);
-                        instruction = reader.readLine();
+                        instruction = intReader.readLine();
                         continue;
                     }
 
@@ -285,7 +294,7 @@ public class Pass2Utility {
                                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
                                 TRecordLists.add(objectCode, fields);
 //                                txtWriter.println(instruction + " " + objectCode + " $Positive address within range of P");
-                                instruction = reader.readLine();
+                                instruction = intReader.readLine();
                                 continue;
                             }
 
@@ -357,7 +366,7 @@ public class Pass2Utility {
                 }
 
                 // after processing format 3 and format 4 instruction, go to next line
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
 
@@ -373,7 +382,7 @@ public class Pass2Utility {
                 txtWriter.println(instruction);
                 TRecordLists.terminateTRecord();
                 ERecord = objectCode;
-                instruction = reader.readLine();
+                instruction = intReader.readLine();
                 continue;
             }
         }

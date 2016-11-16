@@ -32,7 +32,11 @@ public class OperandUtility{
             // original string hold the unaltered expression
             original = expression;
 
-            if(expression.charAt(0) != '=') {
+            if(expression.length() == 1 && expression.contains("*"))
+                return "valid";
+
+            if(expression.charAt(0) != '=' &
+                         !(expression.contains("C'") | expression.contains("c'") | expression.contains("X'") | expression.contains("x'"))) {
                 // *** Handle non-Literal ***
 
                 // If not literal make everything upper cased.
@@ -93,7 +97,8 @@ public class OperandUtility{
                 // Handle Literal =C'ABC' and =X'1E'
 
                 // Convert =C'ABC' or =X'1E' to C'ABC' or X'1E'
-                expression = expression.substring(1);
+                if(expression.contains("="))
+                    expression = expression.substring(1);
 
                 // test for literal starting with 'C' or 'c', 'X' or 'x' character
                 if(!(expression.charAt(0) == 'C' | expression.charAt(0)=='c' | expression.charAt(0) == 'X' | expression.charAt(0) == 'x')){
@@ -189,8 +194,8 @@ public class OperandUtility{
             }
         }
 
-        // Execution shouldn't reach here
-        return "Unknown operand error";
+        // Empty operand
+        return "valid";
     }
 
     /**

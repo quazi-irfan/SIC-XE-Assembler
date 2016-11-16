@@ -46,7 +46,7 @@ public class Main {
 
 //        String inputFile = "SICXE Program 4.asm";
 //        String inputFile = "CS_Func.asm";
-        String inputFile = "A3_4.asm";
+        String inputFile = "Exam1.asm";
 
         System.out.println("Reading from File : " + inputFile );
 
