@@ -27,9 +27,9 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalTable = new LinkedList<>();
 
-//        String inputFile = "SICXE Program 4.txt";
-//        String inputFile = "CS_Func.txt";
-        String inputFile = "A3_0.txt";
+//        String inputFile = "SICXE Program 4.asm";
+//        String inputFile = "CS_Func.asm";
+        String inputFile = "A3_4.asm";
         System.out.println("Reading from : " + inputFile );
 
         System.out.println("\n> Generated Intermediate File");
@@ -63,13 +63,13 @@ public class Main {
 //            operandLine = operandReader.readLine();
 //        }
 
-//        Pass1Utility.populateTableGenerateInt("A3_1.txt", symbolTable, literalTable);
+//        Pass1Utility.populateTableGenerateInt("A3_1.asm", symbolTable, literalTable);
 //        System.out.println("************************************************************");
-//        Pass1Utility.populateTableGenerateInt("A3_2.txt", symbolTable, literalTable);
+//        Pass1Utility.populateTableGenerateInt("A3_2.asm", symbolTable, literalTable);
 //        System.out.println("************************************************************");
-//        Pass1Utility.populateTableGenerateInt("A3_3.txt", symbolTable, literalTable);
+//        Pass1Utility.populateTableGenerateInt("A3_3.asm", symbolTable, literalTable);
 //        System.out.println("************************************************************");
-//        Pass1Utility.populateTableGenerateInt("A3_4.txt", symbolTable, literalTable);
+//        Pass1Utility.populateTableGenerateInt("A3_4.asm", symbolTable, literalTable);
 
 
 //        // Print contents of the literal table

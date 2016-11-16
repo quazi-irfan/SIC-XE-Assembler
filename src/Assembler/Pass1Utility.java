@@ -23,12 +23,12 @@ public class Pass1Utility {
             throws IOException {
 
         // set the output file name, and set a output writer to write on that file
-        String intermediateFileName = assemblyFileName.substring(0, assemblyFileName.indexOf('.')).concat(".int");
-        PrintWriter writer = new PrintWriter(intermediateFileName, "UTF-8");
+        String incFile = assemblyFileName.substring(0, assemblyFileName.indexOf('.')).concat(".int");
+        PrintWriter incWriter = new PrintWriter(incFile, "UTF-8");
 
         // Take input and process SIC Instruction
-        BufferedReader reader = new BufferedReader(new FileReader(assemblyFileName));
-        String instruction = reader.readLine();
+        BufferedReader asmReader = new BufferedReader(new FileReader(assemblyFileName));
+        String instruction = asmReader.readLine();
 
         String label, opcode, operand;
         int format = 0;
@@ -52,11 +52,13 @@ public class Pass1Utility {
             // After comment removal if there is no token, read the next line
             StringTokenizer tokenizer = new StringTokenizer(instruction);
             if(tokenizer.countTokens() == 0){
-                instruction = reader.readLine();
+                instruction = asmReader.readLine();
                 continue;
             }
 
             // Make everything upper case in input instruction
+
+// ************************************************************
 
             // read label
             Node symbol = null;
@@ -87,14 +89,16 @@ public class Pass1Utility {
             if(tokenizer.hasMoreTokens())
                 operand = tokenizer.nextToken();
             if(operand != null){
+                // if instruction has START assembler directive
                 if(opcode.equals("START") && Utility.isInteger(operand)) {
                     startAddress = Integer.parseInt(operand);
                     LineCounter = startAddress;
                     controlSectionName = label;
                 }
 
+                //
                 if(operand.equals("*") && symbol != null) {
-                    // // update the rflag and value of the symbol if opcode is EQU and operand is *
+                    // update the rflag and value of the symbol if opcode is EQU and operand is *
                     symbol.value = LineCounter;
                     symbol.rflag = true;
                 } else {
@@ -102,6 +106,8 @@ public class Pass1Utility {
                     OperandUtility.evaluateOperand(symbolTable, literalTable, operand);
                 }
             }
+
+// ************************************************************
 
             // Handles BYTE operand
             if(opcode.equals("BYTE")){
@@ -140,12 +146,12 @@ public class Pass1Utility {
                     ((operand == null) ? " " : operand));
 
             // print the intermediate instruction to terminal and file
-            System.out.println(intermediateInstruction);
-            writer.println(intermediateInstruction);
+//            System.out.println(intermediateInstruction);
+            incWriter.println(intermediateInstruction);
 
 
             // print the intermediate instruction to terminal
-            instruction = reader.readLine();
+            instruction = asmReader.readLine();
         }
 
         // add the literal lists at the end of the program and update the address of the literals
@@ -153,7 +159,7 @@ public class Pass1Utility {
             String intermediateInstruction = String.format("%-15s*              %-15s", Utility.pad(LineCounter-format, 5), literal.name);
 
             System.out.println(intermediateInstruction);
-            writer.println(intermediateInstruction);
+            incWriter.println(intermediateInstruction);
 
             literal.address = LineCounter-format;
             LineCounter += literal.length;
@@ -164,7 +170,7 @@ public class Pass1Utility {
         programLength = LineCounter;
 
         // close the intermediate file
-        writer.close();
+        incWriter.close();
 
         // print the populated symbol table
 //        System.out.println("\n *** Symbol Table : (Symbol Value Rflag Iflag Mflag)");
