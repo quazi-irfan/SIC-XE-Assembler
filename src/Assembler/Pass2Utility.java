@@ -69,6 +69,7 @@ public class Pass2Utility {
                 useBase = true;
 
                 txtWriter.println(instruction);
+                TRecordLists.terminateTRecord();
                 instruction = reader.readLine();
                 continue;
             }
@@ -77,6 +78,7 @@ public class Pass2Utility {
             if(fields[2].equals("EQU") | fields[2].equals("RESB") | fields[2].equals("RESW")){
 
                 txtWriter.println(instruction);
+                TRecordLists.terminateTRecord();
                 instruction = reader.readLine();
                 continue;
             }
@@ -94,6 +96,7 @@ public class Pass2Utility {
 
                 txtWriter.println(instruction);
                 DRecordLists.add(objectCode);
+                TRecordLists.terminateTRecord();
                 instruction = reader.readLine();
                 continue;
             }
@@ -118,6 +121,7 @@ public class Pass2Utility {
 
                 txtWriter.println(instruction);
                 RRecordLists.add(objectCode);
+                TRecordLists.terminateTRecord();
                 instruction = reader.readLine();
                 continue;
             }
@@ -136,6 +140,7 @@ public class Pass2Utility {
 
                     objectCode = hexValue.toUpperCase();
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                    TRecordLists.add(objectCode, fields);
                     instruction = reader.readLine();
                     continue;
                 }
@@ -147,6 +152,7 @@ public class Pass2Utility {
 
                     objectCode = hexValue.toUpperCase();
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                    TRecordLists.add(objectCode, fields);
                     instruction = reader.readLine();
                     continue;
                 }
@@ -159,6 +165,7 @@ public class Pass2Utility {
                 objectCode = Utility.pad(operand.value, 6);
 
                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                TRecordLists.add(objectCode, fields);
                 MRecordLists.addAll(generateMRecord(fields, symbolTable));
                 instruction = reader.readLine();
                 continue;
@@ -172,6 +179,7 @@ public class Pass2Utility {
                 objectCode = findLiteralValue(literalTable, fields[2]);
 
                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                TRecordLists.add(objectCode, fields);
                 instruction = reader.readLine();
                 continue;
             }
@@ -187,6 +195,7 @@ public class Pass2Utility {
 // format 1 ********************************************
                 if(OpcodeUtility.getFormat(fields[2]) == 1) {
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                    TRecordLists.add(objectCode, fields);
                     instruction = reader.readLine();
                     continue;
                 }
@@ -208,6 +217,7 @@ public class Pass2Utility {
                     }
 
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                    TRecordLists.add(objectCode, fields);
                     instruction = reader.readLine();
                     continue;
                 }
@@ -226,6 +236,7 @@ public class Pass2Utility {
                         objectCode = objectCode.concat("0000");
 
                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                        TRecordLists.add(objectCode, fields);
                         instruction = reader.readLine();
                         continue;
                     }
@@ -238,6 +249,7 @@ public class Pass2Utility {
                         objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(operand.value, 3));
 
                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                        TRecordLists.add(objectCode, fields);
                     }
 
                     // LDA ONE-2
@@ -263,6 +275,7 @@ public class Pass2Utility {
                                 objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
 
                                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                                TRecordLists.add(objectCode, fields);
 //                                txtWriter.println(instruction + " " + objectCode + " $Positive address within range of P");
                                 instruction = reader.readLine();
                                 continue;
@@ -280,20 +293,21 @@ public class Pass2Utility {
                                     if(targetAddress >= 0 && targetAddress <= 4095) { // 2^12 - 1 = 4096 - 1 = 4095
                                         objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
                                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                                        TRecordLists.add(objectCode, fields);
 //                                        txtWriter.println(instruction + " " + objectCode + " $Using Base Relative addressing");  // printing objectcode
                                     }
 
                                     // out of range for Base register
                                     else {
-                                        objectCode = "Error : Positive address out of range of B";
+                                        objectCode = "$Error: Base relative out of range.";
                                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
 //                                        txtWriter.println(instruction + " $Error : Positive address out of range of B : " + Utility.pad(targetAddress, 5)); // printing objectcode
                                     }
                                 }
 
-                                // Can not use Base regsiter becasue it's not in use
+                                // Can not use Base register because it's not in use
                                 else {
-                                    objectCode = "Error : Address out of range, Try Base addressing.";
+                                    objectCode = "$Error: (+)PC relative out of range.";
                                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
 //                                    txtWriter.println(instruction + " $Error : Positive address out of range of P, try Base addressing. " + Utility.pad(targetAddress, 5)); // printing objectcode
                                 }
@@ -309,12 +323,13 @@ public class Pass2Utility {
                                 objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
 
                                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
+                                TRecordLists.add(objectCode, fields);
 //                                txtWriter.println(instruction + " " + objectCode + " $Negative displacement within range of P");    // printing objectcode
                             }
 
                             // Out or negative P range
                             else {
-                                objectCode = "Error : Negative displacement out of range";
+                                objectCode = "$Error: (-)PC relative out of range.";
                                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
 //                                txtWriter.println(instruction + " $Error : Negative displacement out of range of P :" + Utility.pad(targetAddress, 5));   // printing objectcode
                             }
@@ -329,7 +344,7 @@ public class Pass2Utility {
                     objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(operand.value, 5));
 
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
-//                    TRecordList.add(objectCode, 4);
+                    TRecordLists.add(objectCode, fields);
                     MRecordLists.addAll(generateMRecord(fields, symbolTable));
                 }
 
@@ -348,6 +363,7 @@ public class Pass2Utility {
                 }
 
                 txtWriter.println(instruction);
+                TRecordLists.terminateTRecord();
                 ERecord = objectCode;
                 instruction = reader.readLine();
                 continue;
@@ -358,14 +374,21 @@ public class Pass2Utility {
 
         // Write the Object File
         objectWriter.println(HRecord);
+
         for(String d : DRecordLists)
             objectWriter.println(d);
+
         for(String r : RRecordLists)
             objectWriter.println(r);
-        // print the T records
+
+        for(String t : TRecordLists.getAllTRecords())
+            objectWriter.println(t);
+
         for(String m : MRecordLists)
             objectWriter.println(m);
+
         objectWriter.println(ERecord);
+
         objectWriter.close();
 
     }

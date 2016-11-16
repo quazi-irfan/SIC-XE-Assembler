@@ -146,7 +146,7 @@ public class Pass1Utility {
                     ((operand == null) ? " " : operand));
 
             // print the intermediate instruction to terminal and file
-//            System.out.println(intermediateInstruction);
+            System.out.println(intermediateInstruction);
             incWriter.println(intermediateInstruction);
 
 
