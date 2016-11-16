@@ -53,16 +53,7 @@ public class Pass2Utility {
             String objectCode = "";
             String[] fields = getFields(instruction);
 
-            // ERROR HANDLING
-            String status = OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
-            if(status != "valid" && OpcodeUtility.getFormat(fields[2]) != 2){
-                objectCode = status;
-                txtWriter.printf("%-60s%s\n", instruction, objectCode);
-                instruction = intReader.readLine();
-                continue;
-            }
-            Operand operand = OperandUtility.operand;
-            Literal literal = OperandUtility.literal;
+
 
 // ASSEMBLER DIRECTIVE ********************************************************
 
@@ -75,17 +66,6 @@ public class Pass2Utility {
 
                 txtWriter.println(instruction);
                 HRecord = objectCode;
-                instruction = intReader.readLine();
-                continue;
-            }
-
-            // BASE
-            if(fields[2].equals("BASE")){
-                baseAddress = operand.value;
-                useBase = true;
-
-                txtWriter.println(instruction);
-                TRecordLists.terminateTRecord();
                 instruction = intReader.readLine();
                 continue;
             }
@@ -129,7 +109,6 @@ public class Pass2Utility {
                     externalSymbol.value = 0;
                     externalSymbol.rflag = false;
                     externalSymbol.iflag = false;
-                    externalSymbol.mflag = false; // redundant because default initializer
                     symbolTable.add(externalSymbol);
 
                     objectCode = objectCode.concat("^").concat(Utility.pad(symbolName));
@@ -137,6 +116,28 @@ public class Pass2Utility {
 
                 txtWriter.println(instruction);
                 RRecordLists.add(objectCode);
+                TRecordLists.terminateTRecord();
+                instruction = intReader.readLine();
+                continue;
+            }
+
+            // ERROR HANDLING
+            String status = OperandUtility.evaluateOperand(symbolTable, literalTable, fields[3]);
+            if(status != "valid" && OpcodeUtility.getFormat(fields[2]) != 2){
+                objectCode = status;
+                txtWriter.printf("%-60s%s\n", instruction, objectCode);
+                instruction = intReader.readLine();
+                continue;
+            }
+            Operand operand = OperandUtility.operand;
+            Literal literal = OperandUtility.literal;
+
+            // BASE
+            if(fields[2].equals("BASE")){
+                baseAddress = operand.value;
+                useBase = true;
+
+                txtWriter.println(instruction);
                 TRecordLists.terminateTRecord();
                 instruction = intReader.readLine();
                 continue;
@@ -477,7 +478,7 @@ public class Pass2Utility {
      * @return an array of string of length 4
      */
     private static String[] getFields(String instruction) {
-        // 0 lineCounter     15 label      30 opcode         45 operand
+        // 0-7(8) lineCounter     8-19(12) label      20-34(15) opcode         35-49(15) operand    obj starts at 50
 
         String[] fields = new String[4]; // all array elements are initialized to 'null'
 
@@ -487,7 +488,7 @@ public class Pass2Utility {
         fields[0] = tokenizer.nextToken();
 
         // get full length label if exists
-        if(!(instruction.charAt(15) <= 32)) {
+        if(!(instruction.charAt(8) <= 32)) {
             fields[1] = tokenizer.nextToken();
         }
 

@@ -45,8 +45,8 @@ public class Main {
 //        }
 
 //        String inputFile = "SICXE Program 4.asm";
-//        String inputFile = "CS_Func.asm";
-        String inputFile = "Exam2.asm";
+        String inputFile = "mytest.asm";
+//        String inputFile = "OldExamPROC.asm";
 
         System.out.println("Reading from File : " + inputFile );
 
@@ -60,20 +60,20 @@ public class Main {
         Utility.printFile(incFileNmae);
 
         // print the symbol table
-        System.out.println("\n> Symbol  Value\trflag\tiflag\tmflag");
-        int symbolTableSize = symbolTable.size();
-        if(symbolTableSize != 0)
+        System.out.println("\n> Symbol Table\nSymbol\tValue\trflag\tiflag\tmflag");
+        int pass1symbolTableSize = symbolTable.size();
+        if(pass1symbolTableSize != 0)
             symbolTable.view();
         else
-            System.out.println("Empty Symbol Table");
+            System.out.println("(Symbol Table is Empty)");
 
         // print the literal table
-        System.out.println("\n> literal\tValue\t\tlength\taddress");
+        System.out.println("\n> Literal Table\nLiteral\t\t\tValue\t\t\tlength\taddress");
         if(literalTable.size() != 0) {
             for (Literal literal : literalTable)
                 System.out.println(literal);
         } else {
-            System.out.println("Empty Literal Table");
+            System.out.println("(Literal Table is Empty)");
         }
 
         // This function creates an updates intermediate file in .txt extension, and object file in .o extension
@@ -86,8 +86,8 @@ public class Main {
         Utility.printFile(txtfileName);
 
         // print the symbol table
-        if(symbolTable.size() != symbolTableSize) {
-            System.out.println("\nUpdated Symbol Table\n> Symbol  Value\trflag\tiflag\tmflag");
+        if(symbolTable.size() != pass1symbolTableSize) {
+            System.out.println("\n> Updated Symbol Table\nSymbol\tValue\trflag\tiflag\tmflag");
             symbolTable.view();
         }
         else

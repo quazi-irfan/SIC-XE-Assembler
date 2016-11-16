@@ -17,7 +17,13 @@ public class SymbolTable {
     BinaryTree binaryTree = new BinaryTree();
 
     public void add(Node symbol){
-        binaryTree.insert(symbol);
+        Node tempNode = binaryTree.search(symbol);
+        if(tempNode != null){
+            tempNode.setMflag(true);
+        }
+        else {
+            binaryTree.insert(symbol);
+        }
     }
 
     /**

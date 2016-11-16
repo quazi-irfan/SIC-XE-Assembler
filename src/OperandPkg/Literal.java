@@ -18,7 +18,7 @@ public class Literal {
      * Helper method that returns formatted attributes of a Literal
      */
     public String toString() {
-        String output = String.format("%1$-12s %2$-16s %3$-7d %4$s",
+        String output = String.format("%1$-20s%2$-20s %3$-7d %4$s",
                 name, value.toUpperCase(), length, Integer.toHexString(address).toUpperCase());
 
         return output;

@@ -233,7 +233,7 @@ public class OperandUtility{
                         token1Value = symbolTable.search(token1).getValue();
                         token1rflag = symbolTable.search(token1).getRflag();
                     } else {
-                        return token1 + " (Error : Symbol Not found on Symbol Table)";
+                        return token1 + " (Error : Undefined Symbol)";
                     }
              } else {
                  // token1 is neither literal nor symbol
@@ -251,7 +251,7 @@ public class OperandUtility{
                      token2Value = symbolTable.search(token2).getValue();
                      token2rflag = symbolTable.search(token2).getRflag();
                  } else {
-                     return token2 + " (Error : Symbol Not found on Symbol Table)";
+                     return token2 + " (Error : Undefined Symbol)";
                  }
              } else {
                  // token2 is neither literal nor symbol
@@ -304,7 +304,7 @@ public class OperandUtility{
                          operand.value = symbolTable.search(token).getValue();
                          operand.relocability = symbolTable.search(token).getRflag();
                      } else {
-                         return token + " (Error : Symbol Not found on Symbol Table)";
+                         return token + " (Error : Undefined Symbol)";
                      }
                  } else {
                      return token + " (Error : Invalid Symbol)";
