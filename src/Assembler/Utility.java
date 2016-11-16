@@ -26,7 +26,8 @@ public class Utility {
     }
 
     /**
-     * Anti Pattern, but it works for now.
+     * // TODO ANTI PATTERN; DON'T USE EXCEPTION TO CONTROL PROGRAM FLOW
+     * Returns true/false if a given string is an integer(radix 10)
      * @param s Check if the passed string is a integer number
      * @return returns true is the string parameter was a number
      *         returns false if the string was null, or wasn't a number.
@@ -44,15 +45,14 @@ public class Utility {
     }
 
     /**
-     * Anti Pattern, but it works for now.
+     * // TODO ANTI PATTERN; DON'T USE EXCEPTION TO CONTROL PROGRAM FLOW
      * @param s Check if the passed string is a Hex number
      * @return returns true is the string parameter was a number
      *         returns false if the string was null, or wasn't a number.
      */
     public static boolean isHex(String s) {
         try {
-            Long.parseLong("6162636465", 16);
-//            Integer.parseInt(s, 16);
+            Long.parseLong(s, 16);
         } catch(NumberFormatException e) {
             return false;
         } catch(NullPointerException e) {
@@ -69,10 +69,10 @@ public class Utility {
      * @param length The desired length
      * @return  Returns the hex value of the decimal number with left padded with zero.
      */
-
     public static String pad(int decimalValue, int length){
         int padCount;
 
+        // for negative value, trim some least significant digits
         if(decimalValue < 0){
             String negHexValue = Integer.toHexString(decimalValue);
             String resizedHexValue = negHexValue.substring(negHexValue.length()-length, negHexValue.length());  // fffffc > ffc
@@ -106,6 +106,14 @@ public class Utility {
         return sb.toString().toUpperCase();
     }
 
+    /**
+     * Pad a string to 4 character length.
+     * If the string has less than 4 characters, it will add trailing spaces.
+     * If the string has more than 4 characters, it will return the first 4 characters.
+     * If the string has exactly 4 characters, it will return the string unaltered.
+     * @param s Given string to pad.
+     * @return Return the padded string.
+     */
     public static String pad(String s){
         int padCount;
 
@@ -133,6 +141,12 @@ public class Utility {
         }
     }
 
+    /**
+     * Register values of SICXE computer.
+     * Given register name, we get the value of the register.
+     * @param s Provide the name of the register.
+     * @return Gets the value of the register.
+     */
     public static int getRegisterValue(String s){
         HashMap<String, Integer> registerTable= new HashMap<>();
         registerTable.put("A", 0);
@@ -148,6 +162,11 @@ public class Utility {
         return registerTable.get(s);
     }
 
+    /**
+     * Utility function to print a given file.
+     * @param fileName Provide a file name.
+     * @throws IOException Throws Excetion if problem occures.
+     */
     public static void printFile(String fileName) throws IOException{
         try(BufferedReader reader = new BufferedReader(new FileReader(fileName))){
             String line = reader.readLine();
@@ -161,6 +180,11 @@ public class Utility {
 
     }
 
+    /**
+     * Remove comment from a given insturction.
+     * @param instruction The instruction to remove comment from.
+     * @return  Return instruction without comment.
+     */
     public static String removeComment(String instruction){
         if(instruction.contains("$")) {
             StringBuilder sb = new StringBuilder();

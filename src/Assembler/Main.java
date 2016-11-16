@@ -23,7 +23,6 @@ import java.util.LinkedList;
  * And one object file ending in .o extension.
  *
  * If no file is provides as command line argument, the program will ask for a source file.
- * We process every instruction, and print output of Pass 1 in that file.
  *
  */
 public class Main {
@@ -31,32 +30,34 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalTable = new LinkedList<>();
 
-//        // set input files
-//        String inputFile;
-//        if(args.length < 1){
-//            System.out.println("Missing command like argument.");
-//
-//            // request the intput SIC/XE Assembly file
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-//            System.out.print("Enter SIC Assembly Source file : ");
-//            inputFile = reader.readLine();
-//        } else {
-//            inputFile = args[0];
-//        }
+        // set input files
+        String inputFile;
+        if(args.length < 1){
+            System.out.println("Missing command like argument.");
+
+            // request the intput SIC/XE Assembly file
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter SIC Assembly Source file : ");
+            inputFile = reader.readLine();
+        } else {
+            inputFile = args[0];
+        }
 
 //        String inputFile = "SICXE Program 4.asm";
-        String inputFile = "mytest.asm";
+//        String inputFile = "A3_1.asm";
 //        String inputFile = "OldExamPROC.asm";
 
         System.out.println("Reading from File : " + inputFile );
+
+        // ********************** PASS 1 **********************
 
         // This function creates an intermediate file in .inc extension, and populates symbol and literal table
         Pass1Utility.generateIntermediate(inputFile, symbolTable, literalTable);
 
         // print the .inc file
         System.out.println("\n*********** PASS 1 ***********");
-        System.out.println("\n> Generated Intermediate File");
         String incFileNmae = inputFile.substring(0, inputFile.indexOf('.')).concat(".int");
+        System.out.println("\n> Generated Intermediate File : " + incFileNmae);
         Utility.printFile(incFileNmae);
 
         // print the symbol table
@@ -68,7 +69,7 @@ public class Main {
             System.out.println("(Symbol Table is Empty)");
 
         // print the literal table
-        System.out.println("\n> Literal Table\nLiteral\t\t\tValue\t\t\tlength\taddress");
+        System.out.println("\n> Literal Table\nLiteral\t\t\tValue\t\tlength\taddress");
         if(literalTable.size() != 0) {
             for (Literal literal : literalTable)
                 System.out.println(literal);
@@ -76,14 +77,22 @@ public class Main {
             System.out.println("(Literal Table is Empty)");
         }
 
+        // ********************** PASS 2 **********************
+
+        System.out.println("\nContinue to see the output of Pass 2.");
+        Utility.enterToContinue();
+
         // This function creates an updates intermediate file in .txt extension, and object file in .o extension
         Pass2Utility.generateObj(inputFile, symbolTable, literalTable);
 
         // print the updated intermediate code
         System.out.println("\n\n*********** PASS 2 ***********");
-        System.out.println("\n> Adding object code to Intermediate File");
         String txtfileName = inputFile.substring(0, inputFile.indexOf('.')).concat(".txt");
+        System.out.println("\n> Adding object code to Intermediate File : " + txtfileName);
         Utility.printFile(txtfileName);
+
+        System.out.println("\nContinue to see the Updated Symbol table and Object Code");
+        Utility.enterToContinue();
 
         // print the symbol table
         if(symbolTable.size() != pass1symbolTableSize) {
@@ -94,8 +103,8 @@ public class Main {
             System.out.println("\nNo external symbol was added during Pass 2.");
 
         // print the generated object code
-        System.out.println("\n> Generated Object Code");
-        String ofileName = inputFile.substring(0, inputFile.indexOf('.')).concat(".o");
-        Utility.printFile(ofileName);
+        String objFileName = inputFile.substring(0, inputFile.indexOf('.')).concat(".o");
+        System.out.println("\n> Generated Object Code :" + objFileName);
+        Utility.printFile(objFileName);
     }
 }
