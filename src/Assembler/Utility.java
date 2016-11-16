@@ -1,6 +1,7 @@
 package Assembler;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -144,5 +145,18 @@ public class Utility {
         registerTable.put("SW", 9);
 
         return registerTable.get(s);
+    }
+
+    public static void printFile(String fileName) throws IOException{
+        try(BufferedReader reader = new BufferedReader(new FileReader(fileName))){
+            String line = reader.readLine();
+            while (line != null){
+                System.out.println(line);
+                line = reader.readLine();
+            }
+        } catch (IOException e){
+            System.out.println("Problem opening file : " + fileName);
+        }
+
     }
 }

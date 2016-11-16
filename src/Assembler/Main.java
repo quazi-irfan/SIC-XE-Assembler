@@ -30,19 +30,55 @@ public class Main {
 //        String inputFile = "SICXE Program 4.asm";
 //        String inputFile = "CS_Func.asm";
         String inputFile = "A3_4.asm";
-        System.out.println("Reading from : " + inputFile );
+        System.out.println("Reading from File : " + inputFile );
 
+        // This function creates an intermediate file in .inc extension, and populates symbol and literal table
+        Pass1Utility.generateIntermediate(inputFile, symbolTable, literalTable);
+
+        // print the .inc file
+        System.out.println("\n*********** PASS 1 ***********");
         System.out.println("\n> Generated Intermediate File");
-        Pass1Utility.populateTableGenerateInt(inputFile, symbolTable, literalTable);
+        String incFileNmae = inputFile.substring(0, inputFile.indexOf('.')).concat(".int");
+        Utility.printFile(incFileNmae);
 
+        // print the symbol table
         System.out.println("\n> Symbol  Value\trflag\tiflag\tmflag");
-        symbolTable.view();
+        int symbolTableSize = symbolTable.size();
+        if(symbolTableSize != 0)
+            symbolTable.view();
+        else
+            System.out.println("Empty Symbol Table");
 
-        System.out.println("\n> literal\tValue\tlength\taddress");
-        for(Literal literal : literalTable)   System.out.println(literal);
+        // print the literal table
+        System.out.println("\n> literal\tValue\t\tlength\taddress");
+        if(literalTable.size() != 0) {
+            for (Literal literal : literalTable)
+                System.out.println(literal);
+        } else {
+            System.out.println("Empty Literal Table");
+        }
 
-        System.out.println("\n> Generated Object code");
+        // This function creates an updates intermediate file in .txt extension, and object file in .o extension
         Pass2Utility.generateObj(inputFile, symbolTable, literalTable);
+
+        // print the updated intermediate code
+        System.out.println("\n\n*********** PASS 2 ***********");
+        System.out.println("\n> Updated Intermediate Code");
+        String txtfileName = inputFile.substring(0, inputFile.indexOf('.')).concat(".txt");
+        Utility.printFile(txtfileName);
+
+        // print the symbol table
+        if(symbolTable.size() != symbolTableSize) {
+            System.out.println("\nUpdated Symbol Table\n> Symbol  Value\trflag\tiflag\tmflag");
+            symbolTable.view();
+        }
+        else
+            System.out.println("\nNo change in Symbol table during Pass 2.");
+
+        // print the generated object code
+        System.out.println("\n> Generated Object Code");
+        String ofileName = inputFile.substring(0, inputFile.indexOf('.')).concat(".o");
+        Utility.printFile(ofileName);
 
 //        // Populate Symbol Table
 //        System.out.println("*** SYMBOL TABLE ***\nSymbol\t Value\t rflag\t iflag\t mflag\t");
@@ -63,13 +99,13 @@ public class Main {
 //            operandLine = operandReader.readLine();
 //        }
 
-//        Pass1Utility.populateTableGenerateInt("A3_1.asm", symbolTable, literalTable);
+//        Pass1Utility.generateIntermediate("A3_1.asm", symbolTable, literalTable);
 //        System.out.println("************************************************************");
-//        Pass1Utility.populateTableGenerateInt("A3_2.asm", symbolTable, literalTable);
+//        Pass1Utility.generateIntermediate("A3_2.asm", symbolTable, literalTable);
 //        System.out.println("************************************************************");
-//        Pass1Utility.populateTableGenerateInt("A3_3.asm", symbolTable, literalTable);
+//        Pass1Utility.generateIntermediate("A3_3.asm", symbolTable, literalTable);
 //        System.out.println("************************************************************");
-//        Pass1Utility.populateTableGenerateInt("A3_4.asm", symbolTable, literalTable);
+//        Pass1Utility.generateIntermediate("A3_4.asm", symbolTable, literalTable);
 
 
 //        // Print contents of the literal table

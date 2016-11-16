@@ -136,4 +136,8 @@ public class SymbolTable {
 
         return allInternal;
     }
+
+    public int size(){
+        return getAll().size();
+    }
 }

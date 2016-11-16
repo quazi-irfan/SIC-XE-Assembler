@@ -18,7 +18,7 @@ public class Pass1Utility {
     public static int programLength = 0;
     public static String controlSectionName = "unnamed";
 
-    public static void populateTableGenerateInt(
+    public static void generateIntermediate(
             String assemblyFileName, SymbolTable symbolTable, LinkedList<Literal> literalTable)
             throws IOException {
 
@@ -146,9 +146,7 @@ public class Pass1Utility {
                     ((operand == null) ? " " : operand));
 
             // print the intermediate instruction to terminal and file
-            System.out.println(intermediateInstruction);
             incWriter.println(intermediateInstruction);
-
 
             // print the intermediate instruction to terminal
             instruction = asmReader.readLine();
@@ -158,7 +156,6 @@ public class Pass1Utility {
         for(Literal literal : literalTable){
             String intermediateInstruction = String.format("%-15s*              %-15s", Utility.pad(LineCounter-format, 5), literal.name);
 
-            System.out.println(intermediateInstruction);
             incWriter.println(intermediateInstruction);
 
             literal.address = LineCounter-format;
@@ -172,15 +169,6 @@ public class Pass1Utility {
         // close the intermediate file
         incWriter.close();
 
-        // print the populated symbol table
-//        System.out.println("\n *** Symbol Table : (Symbol Value Rflag Iflag Mflag)");
-//        symbolTable.view();
-
-        // print the populated literal tbale
-//        System.out.println("\n *** Literal Table : (Literal HexValue Length Address)");
-//        for(Object o : literalTable){
-//            System.out.println(o);
-//        }
     }
 
 }

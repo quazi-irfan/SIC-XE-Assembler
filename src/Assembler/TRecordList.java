@@ -11,14 +11,6 @@ class TRecordList {
     public ArrayList<String > allrecords = new ArrayList<>();
     private String record = "";
 
-    public void terminateTRecord(){
-        if(length > 1) {
-            allrecords.add(insertLengthInfo(record));
-            count = 0;
-            record = "";
-        }
-    }
-
     public void add(String objCode, String[] fields){
         // first time
         if (count == 0){
@@ -50,6 +42,15 @@ class TRecordList {
         }
     }
 
+    public String insertLengthInfo(String record){
+        StringBuilder sb = new StringBuilder(record);
+
+        sb.insert(9, Utility.pad(length, 2).concat("^"));
+        length = 0;
+
+        return sb.toString();
+    }
+
     public ArrayList<String> getAllTRecords(){
         // append all the pending records
         if(length > 1)
@@ -59,13 +60,12 @@ class TRecordList {
 
     }
 
-    public String insertLengthInfo(String record){
-        StringBuilder sb = new StringBuilder(record);
-
-        sb.insert(9, Utility.pad(length, 2).concat("^"));
-        length = 0;
-
-        return sb.toString();
+    public void terminateTRecord(){
+        if(length > 1) {
+            allrecords.add(insertLengthInfo(record));
+            count = 0;
+            record = "";
+        }
     }
 
 }
