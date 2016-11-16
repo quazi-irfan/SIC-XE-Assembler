@@ -35,8 +35,7 @@ public class OperandUtility{
             if(expression.length() == 1 && expression.contains("*"))
                 return "valid";
 
-            if(expression.charAt(0) != '=' &
-                         !(expression.contains("C'") | expression.contains("c'") | expression.contains("X'") | expression.contains("x'"))) {
+            if(expression.charAt(0) != '=') {
                 // *** Handle non-Literal ***
 
                 // If not literal make everything upper cased.
@@ -63,6 +62,9 @@ public class OperandUtility{
                     // for +6 or -6
                     operand.Nbit = false;
                     operand.Ibit = true;
+                } else if(expression.contains("C'") | expression.contains("c'") | expression.contains("X'") | expression.contains("x'")){
+                    return "valid";
+//                    operand.relocability = false;
                 } else {
                     // for expression OR expression+expression
                     // but for literal + literal Nbit and Ibit has to be set 0 and 1

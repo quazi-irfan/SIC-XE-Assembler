@@ -46,7 +46,7 @@ public class Main {
 
 //        String inputFile = "SICXE Program 4.asm";
 //        String inputFile = "CS_Func.asm";
-        String inputFile = "Exam1.asm";
+        String inputFile = "Exam2.asm";
 
         System.out.println("Reading from File : " + inputFile );
 
@@ -81,7 +81,7 @@ public class Main {
 
         // print the updated intermediate code
         System.out.println("\n\n*********** PASS 2 ***********");
-        System.out.println("\n> Updated Intermediate Code");
+        System.out.println("\n> Adding object code to Intermediate File");
         String txtfileName = inputFile.substring(0, inputFile.indexOf('.')).concat(".txt");
         Utility.printFile(txtfileName);
 
@@ -91,7 +91,7 @@ public class Main {
             symbolTable.view();
         }
         else
-            System.out.println("\nNo change in Symbol table during Pass 2.");
+            System.out.println("\nNo external symbol was added during Pass 2.");
 
         // print the generated object code
         System.out.println("\n> Generated Object Code");

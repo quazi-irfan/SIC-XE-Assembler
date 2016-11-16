@@ -51,7 +51,8 @@ public class Utility {
      */
     public static boolean isHex(String s) {
         try {
-            Integer.parseInt(s, 16);
+            Long.parseLong("6162636465", 16);
+//            Integer.parseInt(s, 16);
         } catch(NumberFormatException e) {
             return false;
         } catch(NullPointerException e) {

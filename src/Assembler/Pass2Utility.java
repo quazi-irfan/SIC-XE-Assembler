@@ -358,7 +358,15 @@ public class Pass2Utility {
 // format 4 ***********************************
                 else if(OpcodeUtility.getFormat(fields[2]) == 4) {
                     XBPE += 1;
-                    objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(operand.value, 5));
+
+                    int targetAddress;
+                    if(fields[3].charAt(0) == '='){
+                        targetAddress = findLiteralAddress(literalTable, fields[3]);
+                    } else {
+                        targetAddress = operand.value;
+                    }
+
+                    objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 5));
 
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
                     TRecordLists.add(objectCode, fields);
