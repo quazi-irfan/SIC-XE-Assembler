@@ -135,7 +135,7 @@ public class Pass1Utility {
             // generate the intermediate instruction
             // 0-7 8-19 20-34 35-49
             String intermediateInstruction = String.format("%-8s%-12s%-20s%-20s",
-                    Utility.pad(LineCounter-format, 5),
+                    Utility.padAddress(LineCounter-format, 5),
                     ((label == null) ? " " : label ),
                     ((opcode == null) ? " " : opcode ),
                     ((operand == null) ? " " : operand));
@@ -149,7 +149,7 @@ public class Pass1Utility {
 
         // add the literal lists at the end of the program and update the address of the literals
         for(Literal literal : literalTable){
-            String intermediateInstruction = String.format("%-8s*           %-20s", Utility.pad(LineCounter-format, 5), literal.name);
+            String intermediateInstruction = String.format("%-8s*           %-20s", Utility.padAddress(LineCounter-format, 5), literal.name);
 
             intWriter.println(intermediateInstruction);
 

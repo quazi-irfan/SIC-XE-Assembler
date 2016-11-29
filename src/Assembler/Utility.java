@@ -69,7 +69,7 @@ public class Utility {
      * @param length The desired length
      * @return  Returns the hex value of the decimal number with left padded with zero.
      */
-    public static String pad(int decimalValue, int length){
+    public static String padAddress(int decimalValue, int length){
         int padCount;
 
         // for negative value, trim some least significant digits
@@ -114,7 +114,7 @@ public class Utility {
      * @param s Given string to pad.
      * @return Return the padded string.
      */
-    public static String pad(String s){
+    public static String padLabel(String s){
         int padCount;
 
         // if label size < 4
@@ -159,7 +159,10 @@ public class Utility {
         registerTable.put("PC", 8);
         registerTable.put("SW", 9);
 
-        return registerTable.get(s);
+        if(!Utility.isInteger(s))
+            return registerTable.get(s);
+        else
+            return Integer.parseInt(s);
     }
 
     /**

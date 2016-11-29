@@ -30,21 +30,21 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalTable = new LinkedList<>();
 
-        // set input files
-        String inputFile;
-        if(args.length < 1){
-            System.out.println("Missing command like argument.");
-
-            // request the intput SIC/XE Assembly file
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Enter SIC Assembly Source file : ");
-            inputFile = reader.readLine();
-        } else {
-            inputFile = args[0];
-        }
+//        // set input files
+//        String inputFile;
+//        if(args.length < 1){
+//            System.out.println("Missing command like argument.");
+//
+//            // request the intput SIC/XE Assembly file
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+//            System.out.print("Enter SIC Assembly Source file : ");
+//            inputFile = reader.readLine();
+//        } else {
+//            inputFile = args[0];
+//        }
 
 //        String inputFile = "SICXE Program 4.asm";
-//        String inputFile = "A3_1.asm";
+        String inputFile = "3.asm";
 //        String inputFile = "OldExamPROC.asm";
 
         System.out.println("Reading from File : " + inputFile );
@@ -80,7 +80,7 @@ public class Main {
         // ********************** PASS 2 **********************
 
         System.out.println("\nContinue to see the output of Pass 2.");
-        Utility.enterToContinue();
+//        Utility.enterToContinue();
 
         // This function creates an updates intermediate file in .txt extension, and object file in .o extension
         Pass2Utility.generateObj(inputFile, symbolTable, literalTable);
@@ -92,7 +92,7 @@ public class Main {
         Utility.printFile(txtfileName);
 
         System.out.println("\nContinue to see the Updated Symbol table and Object Code");
-        Utility.enterToContinue();
+//        Utility.enterToContinue();
 
         // print the symbol table
         if(symbolTable.size() != pass1symbolTableSize) {

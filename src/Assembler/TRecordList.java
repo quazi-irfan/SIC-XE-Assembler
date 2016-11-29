@@ -14,7 +14,7 @@ class TRecordList {
     public void add(String objCode, String[] fields){
         // first time
         if (count == 0){
-            record = "T^" + Utility.pad(Integer.parseInt(fields[0], 16), 6) + "^" + objCode;
+            record = "T^" + Utility.padAddress(Integer.parseInt(fields[0], 16), 6) + "^" + objCode;
 
             length += objCode.length() / 2;
             count++;
@@ -26,7 +26,7 @@ class TRecordList {
                 // update address and add them to the list
 
                 allrecords.add(insertLengthInfo(record));
-                record = "T^" + Utility.pad(Integer.parseInt(fields[0], 16), 6) + "^" + objCode;
+                record = "T^" + Utility.padAddress(Integer.parseInt(fields[0], 16), 6) + "^" + objCode;
 
                 length += objCode.length() / 2;
                 count++;
@@ -45,7 +45,7 @@ class TRecordList {
     public String insertLengthInfo(String record){
         StringBuilder sb = new StringBuilder(record);
 
-        sb.insert(9, Utility.pad(length, 2).concat("^"));
+        sb.insert(9, Utility.padAddress(length, 2).concat("^"));
         length = 0;
 
         return sb.toString();

@@ -60,7 +60,7 @@ public class Node{
     public String toString(){
         String output = String.format("%1$-8s %2$-9s %3$-7d %4$-7d %5$d",
                 key,
-                Utility.pad(value, 5),
+                Utility.padAddress(value, 5),
 //                Integer.toHexString(value).toUpperCase(),
                 (this.rflag) ? 1 : 0,
                 (this.iflag) ? 1 : 0,

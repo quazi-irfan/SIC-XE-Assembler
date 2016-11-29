@@ -5,7 +5,6 @@ import OperandPkg.Operand;
 import OperandPkg.OperandUtility;
 import SymbolPkg.Node;
 import SymbolPkg.SymbolTable;
-import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -59,9 +58,9 @@ public class Pass2Utility {
 
             // START
             if(fields[2].equals("START")){
-                String programName = Utility.pad(fields[1]);
-                String startAddress = Utility.pad(Pass1Utility.startAddress, 6);
-                String programLength = Utility.pad(Pass1Utility.programLength, 6);
+                String programName = Utility.padLabel(fields[1]);
+                String startAddress = Utility.padAddress(Pass1Utility.startAddress, 6);
+                String programLength = Utility.padAddress(Pass1Utility.programLength, 6);
                 objectCode = "H^" + programName +"^" + startAddress +"^"+ programLength;
 
                 txtWriter.println(instruction);
@@ -87,7 +86,7 @@ public class Pass2Utility {
                 while(tokenizer.hasMoreTokens()){
                     String symbolName = tokenizer.nextToken();
                     int symbolValue = symbolTable.search(symbolName).getValue();
-                    objectCode = objectCode.concat("^").concat(Utility.pad(symbolName)).concat("^").concat(Utility.pad(symbolValue, 6));
+                    objectCode = objectCode.concat("^").concat(Utility.padLabel(symbolName)).concat("^").concat(Utility.padAddress(symbolValue, 6));
                 }
 
                 txtWriter.println(instruction);
@@ -111,7 +110,7 @@ public class Pass2Utility {
                     externalSymbol.iflag = false;
                     symbolTable.add(externalSymbol);
 
-                    objectCode = objectCode.concat("^").concat(Utility.pad(symbolName));
+                    objectCode = objectCode.concat("^").concat(Utility.padLabel(symbolName));
                 }
 
                 txtWriter.println(instruction);
@@ -179,7 +178,7 @@ public class Pass2Utility {
             // WORD 97 or WORD ONE-TWO
             if(fields[2].equals("WORD")){
                 // Object code of WORD 97 is 000061
-                objectCode = Utility.pad(operand.value, 6);
+                objectCode = Utility.padAddress(operand.value, 6);
 
                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
                 TRecordLists.add(objectCode, fields);
@@ -208,7 +207,7 @@ public class Pass2Utility {
                 // 3A
                 int opcode = Integer.parseInt(OpcodeUtility.getHexCode(fields[2]), 16);
                 int addressingMode = getAddressingMode(operand);
-                objectCode = objectCode.concat(Utility.pad(opcode + addressingMode, 2));
+                objectCode = objectCode.concat(Utility.padAddress(opcode + addressingMode, 2));
 
 // format 1 ********************************************
                 if(OpcodeUtility.getFormat(fields[2]) == 1) {
@@ -264,7 +263,7 @@ public class Pass2Utility {
                     // LDA			#1			032001
                     // LDA          =C'ABC'     03200C
                     if(!operand.relocability & fields[3].charAt(0) != '='){   // if rflag = false == true AND there is no literal
-                        objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(operand.value, 3));
+                        objectCode = objectCode.concat(Utility.padAddress(XBPE, 1)).concat(Utility.padAddress(operand.value, 3));
 
                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
                         TRecordLists.add(objectCode, fields);
@@ -290,7 +289,7 @@ public class Pass2Utility {
                             // check P range(positive)
                             if (targetAddress >= 0 && targetAddress <= 2047) {
                                 XBPE += 2;
-                                objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
+                                objectCode = objectCode.concat(Utility.padAddress(XBPE, 1)).concat(Utility.padAddress(targetAddress, 3));
 
                                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
                                 TRecordLists.add(objectCode, fields);
@@ -309,7 +308,7 @@ public class Pass2Utility {
 
                                     // check for range
                                     if(targetAddress >= 0 && targetAddress <= 4095) { // 2^12 - 1 = 4096 - 1 = 4095
-                                        objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
+                                        objectCode = objectCode.concat(Utility.padAddress(XBPE, 1)).concat(Utility.padAddress(targetAddress, 3));
                                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
                                         TRecordLists.add(objectCode, fields);
 //                                        txtWriter.println(instruction + " " + objectCode + " $Using Base Relative addressing");  // printing objectcode
@@ -319,7 +318,7 @@ public class Pass2Utility {
                                     else {
                                         objectCode = "$Error: Base relative out of range.";
                                         txtWriter.printf("%-60s%s\n",instruction, objectCode);
-//                                        txtWriter.println(instruction + " $Error : Positive address out of range of B : " + Utility.pad(targetAddress, 5)); // printing objectcode
+//                                        txtWriter.println(instruction + " $Error : Positive address out of range of B : " + Utility.padAddress(targetAddress, 5)); // printing objectcode
                                     }
                                 }
 
@@ -327,7 +326,7 @@ public class Pass2Utility {
                                 else {
                                     objectCode = "$Error: (+)PC relative out of range.";
                                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
-//                                    txtWriter.println(instruction + " $Error : Positive address out of range of P, try Base addressing. " + Utility.pad(targetAddress, 5)); // printing objectcode
+//                                    txtWriter.println(instruction + " $Error : Positive address out of range of P, try Base addressing. " + Utility.padAddress(targetAddress, 5)); // printing objectcode
                                 }
                             }
                         }
@@ -338,7 +337,7 @@ public class Pass2Utility {
                             // Check P range (Negative)
                             if(targetAddress <= -1 && targetAddress >= -2048){
                                 XBPE += 2;
-                                objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 3));
+                                objectCode = objectCode.concat(Utility.padAddress(XBPE, 1)).concat(Utility.padAddress(targetAddress, 3));
 
                                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
                                 TRecordLists.add(objectCode, fields);
@@ -349,7 +348,7 @@ public class Pass2Utility {
                             else {
                                 objectCode = "$Error: (-)PC relative out of range.";
                                 txtWriter.printf("%-60s%s\n",instruction, objectCode);
-//                                txtWriter.println(instruction + " $Error : Negative displacement out of range of P :" + Utility.pad(targetAddress, 5));   // printing objectcode
+//                                txtWriter.println(instruction + " $Error : Negative displacement out of range of P :" + Utility.padAddress(targetAddress, 5));   // printing objectcode
                             }
                         }
 
@@ -367,7 +366,7 @@ public class Pass2Utility {
                         targetAddress = operand.value;
                     }
 
-                    objectCode = objectCode.concat(Utility.pad(XBPE, 1)).concat(Utility.pad(targetAddress, 5));
+                    objectCode = objectCode.concat(Utility.padAddress(XBPE, 1)).concat(Utility.padAddress(targetAddress, 5));
 
                     txtWriter.printf("%-60s%s\n",instruction, objectCode);
                     TRecordLists.add(objectCode, fields);
@@ -383,7 +382,7 @@ public class Pass2Utility {
             else {
                 // END directive with operand
                 if(fields[3] != null) {
-                    objectCode = objectCode.concat("E^").concat(Utility.pad(operand.value, 6));
+                    objectCode = objectCode.concat("E^").concat(Utility.padAddress(operand.value, 6));
                 } else {
                     objectCode = objectCode.concat("E^");
                 }
@@ -448,7 +447,7 @@ public class Pass2Utility {
 
             if (index != -1) {
                 char ch = getSignOfSymbol(fields[3], index); // check for sign
-                String genMRec = "M^" + Utility.pad(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.pad(symbol.getKey());
+                String genMRec = "M^" + Utility.padAddress(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.padLabel(symbol.getKey());
                 MRecordList.add(genMRec);
             }
         }
@@ -461,7 +460,7 @@ public class Pass2Utility {
 
                 if (index != -1 && symbol.rflag) {
                     char ch = getSignOfSymbol(fields[3], index); // check for sign
-                    String genMRec = "M^" + Utility.pad(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.pad(controlSection);
+                    String genMRec = "M^" + Utility.padAddress(Integer.parseInt(fields[0], 16) + offset, 6) + "^" + nibbles + "^" + ch + Utility.padLabel(controlSection);
                     MRecordList.add(genMRec);
                     break;
                 }
