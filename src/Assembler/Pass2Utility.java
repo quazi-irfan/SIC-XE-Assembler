@@ -259,7 +259,7 @@ public class Pass2Utility {
                         // TODO This section might have some problem
                         // format 3 with #1000 or 5 or 5+7
                         // LDA			#1			032001
-                        // LDA          =C'ABC'     03200C
+                        // LDA          =C'ABC'     03200C [ wrong ]
                         if(!operand.relocability & fields[3].charAt(0) != '='){   // if rflag = false == true AND there is no literal
                             objectCode = objectCode.concat(Utility.padAddress(XBPE, 1)).concat(Utility.padAddress(operand.value, 3));
 
@@ -534,6 +534,9 @@ public class Pass2Utility {
     private static int findLiteralAddress(LinkedList<Literal> literalTable, String literalExpression){
         // remove the '=' character since none of the literal on literal table has that character
         literalExpression = literalExpression.substring(1);
+
+        // hex values are changes to upper case
+        if(literalExpression.charAt(0) == 'X') literalExpression = literalExpression.toUpperCase();
 
         for(Literal literal : literalTable){
             if(literal.name.equals(literalExpression))
