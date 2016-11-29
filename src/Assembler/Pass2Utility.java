@@ -444,6 +444,12 @@ public class Pass2Utility {
             offset = 1;
         }
 
+        // handle literal
+        if(fields[3].charAt(0) == '='){
+            String genMRec = "M^" + Utility.padAddress(Integer.parseInt(fields[0], 16)+offset, 6) + "^"+ nibbles + "^+" + Utility.padLabel(Pass1Utility.controlSectionName);
+            MRecordList.add(genMRec);
+        }
+
 
         // always M record for external symbol
         for (Node symbol : symbolTable.getAllExternal()) {
