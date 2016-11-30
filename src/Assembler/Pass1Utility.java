@@ -16,6 +16,8 @@ public class Pass1Utility {
     public static int startAddress = 0;
     public static int LineCounter = startAddress;   // both startAddress and LineCounter will change if START directive is found
     public static int programLength = 0;
+    private static int endLineCounter = 0;
+    private static String endSymbol = null;
     public static String controlSectionName = "unnamed";
 
     public static void generateIntermediate(
@@ -101,6 +103,12 @@ public class Pass1Utility {
                 }
             }
 
+            // We need the line counter of END directive later
+            if(opcode.equals("END") && operand != null){
+               endLineCounter = LineCounter;
+               endSymbol = operand;
+            }
+
 // ************************************************************
 
             // Handles BYTE operand
@@ -159,7 +167,11 @@ public class Pass1Utility {
 
         // Print the program langth; LineCounter is always updated
 //        System.out.println("Program Length : " + Integer.toHexString(LineCounter).toUpperCase());
-        programLength = LineCounter;
+        int sizeOfLiteralTable = LineCounter - endLineCounter;
+        if(endSymbol == null)
+            programLength = LineCounter;
+        else
+            programLength = (endLineCounter - symbolTable.search(endSymbol).getValue()) + sizeOfLiteralTable;
 
         // close the intermediate file
         intWriter.close();
