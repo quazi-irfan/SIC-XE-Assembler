@@ -18,7 +18,7 @@ public class Pass1Utility {
     public static int programLength = 0;
     private static int endLineCounter = 0;
     private static String endSymbol = null;
-    public static String controlSectionName = "unnamed";
+    public static String controlSectionName = null;
 
     public static void generateIntermediate(
             String assemblyFileName, SymbolTable symbolTable, LinkedList<Literal> literalTable)

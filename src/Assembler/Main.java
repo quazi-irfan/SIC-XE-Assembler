@@ -30,21 +30,21 @@ public class Main {
         SymbolTable symbolTable = new SymbolTable();
         LinkedList<Literal> literalTable = new LinkedList<>();
 
-//        // set input files
-//        String inputFile;
-//        if(args.length < 1){
-//            System.out.println("Missing command like argument.");
-//
-//            // request the intput SIC/XE Assembly file
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-//            System.out.print("Enter SIC Assembly Source file : ");
-//            inputFile = reader.readLine();
-//        } else {
-//            inputFile = args[0];
-//        }
+        // set input files
+        String inputFile;
+        if(args.length < 1){
+            System.out.println("Missing command like argument.");
+
+            // request the intput SIC/XE Assembly file
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter SIC Assembly Source file : ");
+            inputFile = reader.readLine();
+        } else {
+            inputFile = args[0];
+        }
 
 //        String inputFile = "SICXE Program 4.asm";
-        String inputFile = "3.asm";
+//        String inputFile = "3.asm";
 //        String inputFile = "OldExamPROC.asm";
 
         System.out.println("Reading from File : " + inputFile );
@@ -104,7 +104,7 @@ public class Main {
 
         // print the generated object code
         String objFileName = inputFile.substring(0, inputFile.indexOf('.')).concat(".o");
-        System.out.println("\n> Generated Object Code :" + objFileName);
+        System.out.println("\n> Generated Object Code : " + objFileName);
         Utility.printFile(objFileName);
     }
 }
