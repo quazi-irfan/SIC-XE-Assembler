@@ -96,7 +96,7 @@ int fact(int i){
 Lets invoke the linker to create the executable program, and use objdump again to see the object code from main and fact inside the executable.
 
 ```sh
-$ gcc main.o fact.o > a.out
+$ gcc main.o fact.o
 
 a.out:     file format elf64-x86-64
 Disassembly of section .init:
