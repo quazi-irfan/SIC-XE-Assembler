@@ -28,50 +28,67 @@ int fact(int i){
 
 ```
 
-Compile and use objdump to see the generated object code: main.o and fact.o
+Compile with debug information(to see C soruce and assembly interleved) and use objdump to see the generated object code: main.o and fact.o
 
 ```sh
-$ gcc -c main.c > main.o
-$ objdump -d main.o
+$ gcc -c -g main.c 
+$ objdump -dS main.o
 
 main.o:     file format elf64-x86-64
 Disassembly of section .text:
+
 0000000000000000 <main>:
+#include<stdio.h>
+
+extern int fact(int i);
+
+int main(void){
    0:	55                   	push   %rbp
    1:	48 89 e5             	mov    %rsp,%rbp
    4:	48 83 ec 10          	sub    $0x10,%rsp
+    int i = fact(5);
    8:	bf 05 00 00 00       	mov    $0x5,%edi
    d:	e8 00 00 00 00       	callq  12 <main+0x12>
   12:	89 45 fc             	mov    %eax,-0x4(%rbp)
+    printf("5 Factorial is %d\n", i);
   15:	8b 45 fc             	mov    -0x4(%rbp),%eax
   18:	89 c6                	mov    %eax,%esi
   1a:	bf 00 00 00 00       	mov    $0x0,%edi
   1f:	b8 00 00 00 00       	mov    $0x0,%eax
   24:	e8 00 00 00 00       	callq  29 <main+0x29>
+    return 0;
   29:	b8 00 00 00 00       	mov    $0x0,%eax
+}
   2e:	c9                   	leaveq 
-  2f:	c3                   	retq   
+  2f:	c3                   	retq  
 
 
-$ gcc -c fact.c > fact.o
-$ objdump -d fact.o
+$ gcc -c -g fact.c
+$ objdump -dS fact.o
 
 fact.o:     file format elf64-x86-64
 Disassembly of section .text:
+
 0000000000000000 <fact>:
+int fact(int i){
    0:	55                   	push   %rbp
    1:	48 89 e5             	mov    %rsp,%rbp
    4:	48 83 ec 10          	sub    $0x10,%rsp
    8:	89 7d fc             	mov    %edi,-0x4(%rbp)
+    if(i == 0) 
    b:	83 7d fc 00          	cmpl   $0x0,-0x4(%rbp)
    f:	75 07                	jne    18 <fact+0x18>
+        return 1;
   11:	b8 01 00 00 00       	mov    $0x1,%eax
   16:	eb 11                	jmp    29 <fact+0x29>
+    else
+        return i * fact(i-1); 
   18:	8b 45 fc             	mov    -0x4(%rbp),%eax
   1b:	83 e8 01             	sub    $0x1,%eax
   1e:	89 c7                	mov    %eax,%edi
   20:	e8 00 00 00 00       	callq  25 <fact+0x25>
   25:	0f af 45 fc          	imul   -0x4(%rbp),%eax
+}
   29:	c9                   	leaveq 
   2a:	c3                   	retq   
 ```
