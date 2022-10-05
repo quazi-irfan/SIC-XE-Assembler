@@ -164,7 +164,7 @@ Disassembly of section .init:
   40060c:	c3                   	retq 
 ```
 
-To see the symbol table we will invoke nm a.out
+To see the symbol table we will invoke nm a.out (`GNU nm` lists the symbols from object files objfile)
 ```sh
 $ nm a.out
 0000000000601038 B __bss_start
