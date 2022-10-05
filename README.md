@@ -1,4 +1,4 @@
-# Comparing C(x86) compile + linking with SIC-XE assembler + linking + loading
+# Comparing C(x86) compile + linking with [SIC](https://en.wikipedia.org/wiki/Simplified_Instructional_Computer)-XE assembler + linking + loading
 
 
 ## C(x86)
